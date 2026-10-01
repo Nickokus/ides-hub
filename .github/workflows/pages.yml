@@ -1,29 +1,64 @@
 name: Deploy Hub to GitHub Pages
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: true
+
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build Hub and interactive decks
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp index.html class.html classes.json .nojekyll _site/
+          cp -R assets study _site/
+
+          build_deck() {
+            local src="$1"
+            local dest="$2"
+            echo "Building $src -> $dest"
+            pushd "$src"
+            npm install --no-audit --no-fund
+            npm run build
+            popd
+            mkdir -p "_site/$dest"
+            cp -R "$src/dist/." "_site/$dest/"
+          }
+
+          build_deck decks/is/librerias-frameworks decks/is/librerias-frameworks
+          build_deck decks/is/ci-cd-deploy decks/is/ci-cd-deploy
+          build_deck decks/is/nickochat decks/is/nickochat
+          build_deck decks/is/testing decks/is/testing
+          build_deck decks/iu/user-flow decks/iu/user-flow
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
