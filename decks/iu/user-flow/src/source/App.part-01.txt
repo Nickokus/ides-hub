@@ -1,0 +1,103 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, ArrowRight, Expand, Minimize2, Workflow, Target } from 'lucide-react'
+import { Background, Controls, MarkerType, MiniMap, Panel, ReactFlow, ReactFlowProvider, Node, Edge } from '@xyflow/react'
+
+type SlideType = 'cover' | 'why' | 'task-vs-user' | 'building-blocks' | 'flow-interactive' | 'states-errors' | 'wireflow' | 'handoff' | 'summary'
+type Slide = { kicker: string; title: string; subtitle: string; theory: string; definition?: string; type: SlideType }
+
+const slides: Slide[] = [
+  { kicker: 'Interfaz de Usuario · User Flow Profesional', title: 'Diseñar un User Flow profesional', subtitle: 'Cómo pasar de una secuencia simple de pantallas a un flujo realista, navegable, documentado y útil para producto, diseño y desarrollo.', theory: 'Un User Flow profesional no se limita a “Pantalla A → Pantalla B”. Debe representar objetivos del usuario, decisiones, eventos, estados, errores, caminos alternativos y resultados.', type: 'cover' },
+  { kicker: '01 · ¿Por qué importa?', title: 'Un flujo profesional reduce ambigüedad', subtitle: 'Nos ayuda a pensar el comportamiento del producto antes de dibujar pantallas definitivas.', theory: 'Permite detectar pasos innecesarios, rutas sin salida, errores no contemplados, estados faltantes y problemas de navegación. También sirve para alinear a todo el equipo.', definition: 'User Flow: representación del recorrido que una persona realiza para alcanzar un objetivo dentro de un sistema, incluyendo acciones, decisiones, estados y resultados.', type: 'why' },
+  { kicker: '02 · Aclaración clave', title: 'Task Flow no es lo mismo que User Flow', subtitle: 'Uno suele mostrar el camino ideal; el otro modela la realidad del producto.', theory: 'El Task Flow suele ser lineal y útil para describir una tarea concreta. El User Flow es más rico: contempla decisiones, caminos alternativos, validaciones, errores, recuperaciones y múltiples puntos de entrada.', type: 'task-vs-user' },
+  { kicker: '03 · Componentes del flujo', title: '¿Qué debe incluir un User Flow profesional?', subtitle: 'Objetivo, entrada, acciones, eventos, decisiones, estados, errores, recuperación y salida.', theory: 'Un buen flujo no dibuja cajas porque sí. Cada nodo representa algo distinto y debe responder a una pregunta concreta del producto.', type: 'building-blocks' },
+  { kicker: '04 · User Flow completo', title: 'Recorremos un User Flow profesional', subtitle: 'Seguimos el flujo de “Entregar actividad” desde sus puntos de entrada hasta el éxito, incluyendo validaciones, estados y recuperación de errores.', theory: 'En esta pantalla el gráfico es el protagonista: podemos recorrerlo, acercarnos a una zona y seleccionar cada nodo para explicar qué representa dentro del producto.', type: 'flow-interactive' },
+  { kicker: '05 · Estados y errores', title: 'Un flujo profesional modela comportamiento, no solo navegación', subtitle: 'Los estados y los errores son parte del diseño, no casos excepcionales que se agregan al final.', theory: 'Loading, success, error, blocked, empty o expired son estados que cambian lo que el usuario puede hacer. El flujo debe mostrar también cómo se vuelve al recorrido principal.', type: 'states-errors' },
+  { kicker: '06 · Del flujo al wireflow', title: 'Podemos combinar flujo + estructura de pantallas', subtitle: 'El wireflow mezcla lógica de recorrido con mini wireframes para dar más contexto visual.', theory: 'Es ideal cuando queremos conversar sobre el recorrido y al mismo tiempo empezar a ubicar contenido, acciones y jerarquía dentro de las vistas.', type: 'wireflow' },
+  { kicker: '07 · Handoff', title: 'El flujo también documenta decisiones para desarrollo', subtitle: 'Sirve para explicar qué debe ocurrir, no solo cómo debería verse.', theory: 'Podemos anotar eventos, validaciones, respuestas del sistema, componentes involucrados y estados esperados. Eso reduce ambigüedad al pasar de diseño a implementación.', type: 'handoff' },
+  { kicker: 'Cierre', title: 'Pensar flujos es pensar el comportamiento del producto', subtitle: 'Un buen User Flow traduce objetivos y decisiones en una experiencia clara y verificable.', theory: 'Cuando el flujo está bien pensado, después resulta más fácil prototipar, testear, documentar y entregar una solución consistente.', type: 'summary' },
+]
+
+const nodeDescriptions: Record<string, { title: string; text: string; kind: string }> = {
+  dashboard: { title: 'Dashboard', kind: 'Entrada', text: 'Usamos este nodo para representar uno de los puntos de entrada posibles. Desde acá el usuario accede al listado de materias o llega por navegación global.' },
+  notification: { title: 'Notificación', kind: 'Entrada alternativa', text: 'Acá vemos que el flujo no siempre empieza en Home. Una notificación también puede llevar directamente al detalle de una actividad.' },
+  subject: { title: 'Pantalla de Materia', kind: 'Navegación', text: 'Esta vista organiza el acceso contextual a actividades, materiales y entregas. Es una etapa de navegación, no todavía una acción final.' },
+  activity: { title: 'Detalle de Actividad', kind: 'Pantalla objetivo', text: 'Acá empieza la parte más importante del flujo. Desde este punto el usuario entiende la consigna, el estado de la actividad y las acciones disponibles.' },
+  available: { title: '¿Actividad disponible?', kind: 'Decisión', text: 'Esta decisión valida si la entrega todavía está abierta. Es fundamental para que el sistema no permita una acción inválida.' },
+  blocked: { title: 'Estado bloqueado / vencido', kind: 'Estado', text: 'Mostramos qué ocurre si la actividad no está disponible. Este estado debería informar el motivo y ofrecer alguna salida útil, por ejemplo volver o consultar fecha.' },
+  attach: { title: 'Adjuntar archivo', kind: 'Acción', text: 'Acá ocurre una acción concreta del usuario. Ya no estamos solo navegando: el flujo se vuelve operativo.' },
+  valid: { title: '¿Archivo válido?', kind: 'Validación', text: 'Esta validación revisa formato, tamaño o requisitos mínimos. Es mejor modelarla explícitamente en el flujo que “suponer” que todo saldrá bien.' },
+  invalid: { title: 'Error de archivo', kind: 'Error recuperable', text: 'En este caso no terminamos el flujo. El sistema muestra un mensaje claro y permite volver a seleccionar otro archivo sin perder contexto.' },
+  loaded: { title: 'Archivo cargado', kind: 'Estado', text: 'Este estado confirma que la primera parte salió bien. A partir de acá se habilita la acción principal: enviar.' },
+  submit: { title: 'Enviar entrega', kind: 'Acción principal', text: 'Acá usamos el CTA principal. Este nodo representa el evento de envío y da lugar a los estados intermedios del sistema.' },
+  loading: { title: 'Loading', kind: 'Estado temporal', text: 'Mostramos que el sistema está procesando la entrega. Este tipo de estado es importante para dar visibilidad y evitar que el usuario piense que nada ocurrió.' },
+  successQ: { title: '¿Envío correcto?', kind: 'Resultado', text: 'Después del procesamiento el flujo se bifurca. Esta decisión separa el camino de éxito del camino de error.' },
+  retry: { title: 'Error de red / servidor', kind: 'Error recuperable', text: 'Un flujo profesional debe explicar cómo se recupera el usuario. Acá no termina todo: damos opción de reintentar o volver.' },
+  success: { title: 'Confirmación de éxito', kind: 'Éxito', text: 'Este nodo representa el cierre positivo. Conviene confirmar el resultado, la fecha y quizá mostrar evidencias o acciones siguientes.' },
+}
+
+function DemoButton({ children, onClick, active = false, kind = 'primary' }: { children: React.ReactNode; onClick?: () => void; active?: boolean; kind?: 'primary' | 'secondary' }) {
+  return <motion.button whileHover={{ y: -2, scale: 1.02 }} whileTap={{ scale: 0.96 }} onClick={onClick} className={`demo-btn ${kind} ${active ? 'active' : ''}`}>{children}</motion.button>
+}
+
+function CoverVisual() {
+  return <div className="cover-visual"><div className="grid-glow" /><motion.div className="hero-card" animate={{ y: [0, -8, 0], rotate: [0, 1.5, 0, -1.5, 0] }} transition={{ repeat: Infinity, duration: 7 }}><Workflow size={68} /><strong>User Flow<br />Profesional</strong></motion.div><motion.div className="floating token-a" animate={{ x: [0, 8, 0], y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 4.5 }}>Objetivo del usuario</motion.div><motion.div className="floating token-b" animate={{ x: [0, -10, 0], y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 5.2 }}>Decisiones</motion.div><motion.div className="floating token-c" animate={{ x: [0, 8, 0], y: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 4.8 }}>Estados y errores</motion.div><motion.div className="floating token-d" animate={{ x: [0, -8, 0], y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 5.6 }}>Handoff</motion.div></div>
+}
+
+function WhyVisual() {
+  const items = [['Reduce ambigüedad', 'Todos entienden el recorrido principal y los alternativos.'], ['Alinea equipos', 'Producto, diseño y desarrollo hablan de lo mismo.'], ['Detecta huecos', 'Aparecen errores, salidas y estados faltantes.'], ['Mejora la calidad', 'Ayuda a diseñar antes de implementar.']]
+  return <div className="stack-list">{items.map(([title, note], i) => <motion.div key={title} initial={{ opacity: 0, x: 35 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }} className="stack-row"><div className="stack-icon">{i + 1}</div><div><strong>{title}</strong><span>{note}</span></div></motion.div>)}</div>
+}
+
+function TaskVsUserVisual() {
+  const [mode, setMode] = useState<'task' | 'user'>('task')
+  return <div className="compare-shell"><div className="segmented"><DemoButton active={mode === 'task'} onClick={() => setMode('task')}>Task Flow</DemoButton><DemoButton kind="secondary" active={mode === 'user'} onClick={() => setMode('user')}>User Flow</DemoButton></div><div className="compare-board">{mode === 'task' ? <div className="mini-sequence">{['Dashboard', 'Materia', 'Actividad', 'Enviar', 'Confirmación'].map((x, i) => <div className="mini-step" key={x}><div>{x}</div>{i < 4 && <span>→</span>}</div>)}</div> : <div className="branch-board"><div className="branch-col"><div className="branch-node">Dashboard</div><div className="branch-arrow">↓</div><div className="branch-node">Materia</div><div className="branch-arrow">↓</div><div className="branch-node">Actividad</div><div className="branch-split"><div><div className="branch-node soft">¿Disponible?</div><div className="branch-arrow">↙ ↘</div></div></div></div><div className="branch-result"><div className="branch-node error">Bloqueada</div><div className="branch-node success">Adjuntar → Enviar → Success / Error</div></div></div>}</div><div className="sim-note">{mode === 'task' ? 'Usamos esta vista para ver el camino ideal de una tarea concreta, generalmente lineal.' : 'Ahora vemos un flujo más realista: decisiones, caminos alternativos y estados intermedios.'}</div></div>
+}
+
+function BuildingBlocksVisual() {
+  const items = [['Objetivo', '¿Qué quiere lograr el usuario?'], ['Entrada', '¿Desde dónde empieza?'], ['Acción', '¿Qué hace el usuario?'], ['Decisión', '¿Qué condición separa caminos?'], ['Estado', '¿En qué situación queda el sistema?'], ['Error', '¿Qué problema puede aparecer?'], ['Recuperación', '¿Cómo vuelve al flujo?'], ['Salida', '¿Cómo termina la experiencia?']]
+  return <div className="blocks-grid">{items.map(([title, text], i) => <motion.div key={title} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="block-card"><span>{String(i + 1).padStart(2, '0')}</span><strong>{title}</strong><small>{text}</small></motion.div>)}</div>
+}
+
+function flowNodes(): Node[] {
+  const baseStyle = { borderRadius: 18, border: '1px solid rgba(52, 211, 153, 0.26)', background: 'rgba(7, 18, 15, 0.88)', color: '#e7fff7', boxShadow: '0 10px 26px rgba(0,0,0,.25)', padding: 0 } as const
+  return [
+    { id: 'dashboard', position: { x: 0, y: 120 }, data: { label: 'Dashboard' }, style: { ...baseStyle, width: 170 } },
+    { id: 'notification', position: { x: 0, y: 300 }, data: { label: 'Notificación' }, style: { ...baseStyle, width: 170 } },
+    { id: 'subject', position: { x: 280, y: 120 }, data: { label: 'Materia' }, style: { ...baseStyle, width: 160 } },
+    { id: 'activity', position: { x: 560, y: 120 }, data: { label: 'Detalle de actividad' }, style: { ...baseStyle, width: 200 } },
+    { id: 'available', position: { x: 860, y: 120 }, data: { label: '¿Actividad disponible?' }, style: { ...baseStyle, width: 210 } },
+    { id: 'blocked', position: { x: 1180, y: 30 }, data: { label: 'Estado bloqueado / vencido' }, style: { ...baseStyle, width: 220, border: '1px solid rgba(250, 204, 21, .3)' } },
+    { id: 'attach', position: { x: 1180, y: 210 }, data: { label: 'Adjuntar archivo' }, style: { ...baseStyle, width: 190 } },
+    { id: 'valid', position: { x: 1450, y: 210 }, data: { label: '¿Archivo válido?' }, style: { ...baseStyle, width: 180 } },
+    { id: 'invalid', position: { x: 1710, y: 100 }, data: { label: 'Error de archivo' }, style: { ...baseStyle, width: 180, border: '1px solid rgba(244, 63, 94, .3)' } },
+    { id: 'loaded', position: { x: 1710, y: 300 }, data: { label: 'Archivo cargado' }, style: { ...baseStyle, width: 180 } },
+    { id: 'submit', position: { x: 1980, y: 300 }, data: { label: 'Enviar entrega' }, style: { ...baseStyle, width: 180 } },
+    { id: 'loading', position: { x: 2240, y: 300 }, data: { label: 'Loading' }, style: { ...baseStyle, width: 150 } },
+    { id: 'successQ', position: { x: 2470, y: 300 }, data: { label: '¿Envío correcto?' }, style: { ...baseStyle, width: 180 } },
+    { id: 'retry', position: { x: 2740, y: 210 }, data: { label: 'Error de red / servidor' }, style: { ...baseStyle, width: 220, border: '1px solid rgba(244, 63, 94, .3)' } },
+    { id: 'success', position: { x: 2740, y: 390 }, data: { label: 'Confirmación de éxito' }, style: { ...baseStyle, width: 220, border: '1px solid rgba(34, 197, 94, .35)' } },
+  ]
+}
+
+function flowEdges(): Edge[] {
+  const base = { type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed, color: '#34d399', width: 18, height: 18 }, style: { stroke: '#34d399', strokeWidth: 2.2 } } as const
+  return [
+    { id: 'e1', source: 'dashboard', target: 'subject', ...base },
+    { id: 'e2', source: 'notification', target: 'activity', ...base },
+    { id: 'e3', source: 'subject', target: 'activity', ...base },
+    { id: 'e4', source: 'activity', target: 'available', ...base },
+    { id: 'e5', source: 'available', target: 'blocked', label: 'No', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#fde68a', fontWeight: 800 }, ...base },
+    { id: 'e6', source: 'available', target: 'attach', label: 'Sí', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#a7f3d0', fontWeight: 800 }, ...base },
+    { id: 'e7', source: 'attach', target: 'valid', ...base },
+    { id: 'e8', source: 'valid', target: 'invalid', label: 'No', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#fda4af', fontWeight: 800 }, ...base },
+    { id: 'e9', source: 'valid', target: 'loaded', label: 'Sí', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#a7f3d0', fontWeight: 800 }, ...base },
+    { id: 'e10', source: 'invalid', target: 'attach', ...base },
+    { id: 'e11', source: 'loaded', target: 'submit', ...base },
+    { id: 'e12', source: 'submit', target: 'loading', ...base },
+    { id: 'e13', source: 'loading', target: 'successQ', ...base },
+    { id: 'e14', source: 'successQ', target: 'retry', label: 'No', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#fda4af', fontWeight: 800 }, ...base },
+    { id: 'e15', source: 'successQ', target: 'success', label: 'Sí', labelBgPadding: [6, 4], labelBgBorderRadius: 10, labelStyle: { fill: '#a7f3d0', fontWeight: 800 }, ...base },
+    { id: 'e16', source: 'retry', target: 'submit', ...base },
+  ]
+}

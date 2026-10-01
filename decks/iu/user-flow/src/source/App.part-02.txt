@@ -1,0 +1,73 @@
+function InteractiveFlowVisual() {
+  const [selected, setSelected] = useState('activity')
+  const flowRef = useRef<HTMLDivElement>(null)
+  const nodes = useMemo(
+    () => flowNodes().map((node) =>
+      node.id === selected
+        ? { ...node, style: { ...node.style, border: '1px solid rgba(134, 239, 172, .95)', boxShadow: '0 0 0 3px rgba(52,211,153,.16), 0 16px 34px rgba(0,0,0,.34)' } }
+        : node,
+    ),
+    [selected],
+  )
+  const edges = useMemo(() => flowEdges(), [])
+  const content = nodeDescriptions[selected]
+
+  const openGraphFullscreen = async () => {
+    if (!flowRef.current) return
+    if (!document.fullscreenElement) await flowRef.current.requestFullscreen()
+    else await document.exitFullscreen()
+  }
+
+  return (
+    <div className="flow-experience" ref={flowRef}>
+      <div className="flow-layout">
+        <div className="flow-board">
+          <ReactFlowProvider>
+            <ReactFlow nodes={nodes} edges={edges} fitView fitViewOptions={{ padding: 0.16, minZoom: 0.25, maxZoom: 1.25 }} minZoom={0.25} maxZoom={1.6} onNodeClick={(_, node) => setSelected(node.id)} nodesDraggable={false} elementsSelectable panOnScroll attributionPosition="bottom-left">
+              <MiniMap pannable zoomable nodeColor={() => '#34d399'} maskColor="rgba(3, 12, 10, .72)" />
+              <Controls showInteractive={false} />
+              <Background color="rgba(52,211,153,.12)" gap={24} />
+              <Panel position="top-left">
+                <div className="flow-help"><span>Usamos este gráfico para seguir el recorrido completo. Seleccionen un nodo para analizarlo.</span><button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); openGraphFullscreen() }} className="graph-fullscreen-btn nodrag nopan nowheel" title="Pantalla completa del gráfico"><Expand size={16} /> Pantalla completa</button></div>
+              </Panel>
+            </ReactFlow>
+          </ReactFlowProvider>
+        </div>
+        <aside className="node-inspector"><div className="inspector-tag">{content.kind}</div><h3>{content.title}</h3><p>{content.text}</p><div className="inspector-guide"><strong>Para explicar en clase</strong><span>Primero ubicamos este nodo dentro del recorrido. Después observamos qué evento llega hasta acá y qué caminos pueden salir desde este punto.</span></div></aside>
+      </div>
+    </div>
+  )
+}
+
+function StatesVisual() {
+  const [state, setState] = useState<'idle'|'loading'|'error'|'success'>('idle')
+  return <div className="states-shell"><div className="segmented"><DemoButton active={state === 'idle'} onClick={() => setState('idle')}>Idle</DemoButton><DemoButton active={state === 'loading'} onClick={() => setState('loading')}>Loading</DemoButton><DemoButton active={state === 'error'} kind="secondary" onClick={() => setState('error')}>Error</DemoButton><DemoButton active={state === 'success'} onClick={() => setState('success')}>Success</DemoButton></div><div className="state-card"><div className="state-flow"><div className="state-node">Actividad</div><div className="state-arrow">→</div><div className="state-node">Adjuntar</div><div className="state-arrow">→</div><div className="state-node">Enviar</div><div className="state-arrow">→</div><motion.div layout className={`state-node final ${state}`}>{state === 'idle' && 'Esperando acción'}{state === 'loading' && 'Enviando...'}{state === 'error' && 'Error: reintentar'}{state === 'success' && 'Entrega confirmada'}</motion.div></div><div className="state-teach">{state === 'idle' && 'Usamos este ejemplo para recordar que una interfaz también tiene estados “en reposo”, donde espera una acción del usuario.'}{state === 'loading' && 'Ahora vemos un estado temporal. Esto sirve para dar visibilidad del proceso y evitar incertidumbre.'}{state === 'error' && 'Acá mostramos que el error debe explicar qué pasó y cómo volver al flujo, no solamente bloquear.'}{state === 'success' && 'El cierre positivo también forma parte del diseño: confirma el resultado y reduce ansiedad.'}</div></div></div>
+}
+
+function WireflowVisual() {
+  const cards = [['Dashboard', 'Entrada', 'Cards de materias + navegación global'], ['Materia', 'Contexto', 'Listado de actividades + materiales'], ['Actividad', 'Acción', 'Consigna + botón Adjuntar + CTA Enviar'], ['Confirmación', 'Cierre', 'Mensaje de éxito + fecha y evidencia']]
+  return <div className="wireflow-wrap"><div className="wireflow-grid">{cards.map(([title, tag, text], i) => <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="wireflow-card" key={title}><div className="wire-index">{String(i + 1).padStart(2, '0')}</div><div className="wireframe"><div className="wf-topbar" /><div className="wf-line short" /><div className="wf-line" /><div className="wf-panel" /><div className="wf-line medium" /></div><div className="wire-note"><strong>{title}</strong><span>{tag}</span><small>{text}</small></div></motion.div>)}</div><div className="sim-note">Usamos este wireflow para mostrar cómo el recorrido se relaciona con la estructura visual de cada pantalla, sin convertir todavía el flujo en un prototipo de alta fidelidad.</div></div>
+}
+
+function HandoffVisual() {
+  const items = [['Evento', 'onClick en “Enviar”'], ['Validación', 'Formato y tamaño de archivo'], ['Estado', 'loading / success / error'], ['Componente', 'Button, Alert, Toast, File Upload'], ['Respuesta', 'Mensaje de confirmación o recuperación'], ['Dato', 'fecha, archivo entregado, estado final']]
+  return <div className="handoff-grid">{items.map(([title, detail], i) => <motion.div key={title} initial={{ opacity: 0, x: 25 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="handoff-card"><strong>{title}</strong><span>{detail}</span></motion.div>)}<div className="sim-note">Acá explicamos a los alumnos que el flujo no solo sirve para “diseñar”; también sirve para documentar comportamiento y hacer handoff.</div></div>
+}
+
+function SummaryVisual() {
+  return <div className="summary-visual"><Target size={78} /><strong>Objetivo → recorrido → decisiones → resultado</strong><span>Eso es lo que buscamos modelar cuando diseñamos un User Flow profesional.</span></div>
+}
+
+function Visual({ type }: { type: SlideType }) {
+  if (type === 'cover') return <CoverVisual />
+  if (type === 'why') return <WhyVisual />
+  if (type === 'task-vs-user') return <TaskVsUserVisual />
+  if (type === 'building-blocks') return <BuildingBlocksVisual />
+  if (type === 'flow-interactive') return <InteractiveFlowVisual />
+  if (type === 'states-errors') return <StatesVisual />
+  if (type === 'wireflow') return <WireflowVisual />
+  if (type === 'handoff') return <HandoffVisual />
+  return <SummaryVisual />
+}
+
+const ease = [0.22, 1, 0.36, 1] as const
