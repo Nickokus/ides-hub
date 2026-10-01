@@ -1,0 +1,158 @@
+    quote: "Entrar al chat no es solo cambiar de pantalla: es avisarle al servidor que existe un nuevo usuario conectado."
+  },
+  {
+    type: "diagram",
+    eyebrow: "Flujo de mensaje",
+    title: "Cuando alguien envía un mensaje",
+    flow: [
+      "Usuario escribe mensaje",
+      "Frontend emite chat:message",
+      "Backend valida",
+      "Backend arma el mensaje",
+      "Backend hace broadcast",
+      "Todos reciben el mensaje"
+    ],
+    quote: "Broadcast significa enviar una información a todos los clientes conectados."
+  },
+  {
+    type: "cards",
+    eyebrow: "Concepto clave",
+    title: "Estado en memoria",
+    body: [
+      "En la primera versión, el servidor guardará datos temporales en memoria. Esto alcanza para aprender el flujo, pero no para guardar información permanente."
+    ],
+    cards: [
+      { title: "Usuarios conectados", text: "Se guardan mientras el servidor está activo.", tone: "green" },
+      { title: "Mensajes recientes", text: "Se pueden conservar temporalmente en un array.", tone: "blue" },
+      { title: "Límite", text: "Si el servidor se reinicia, la memoria se pierde.", tone: "red" }
+    ],
+    quote: "Esta versión demuestra tiempo real, no persistencia permanente."
+  },
+  {
+    type: "content",
+    eyebrow: "Tecnología",
+    title: "¿Qué es Node.js?",
+    body: [
+      "Node.js permite ejecutar JavaScript fuera del navegador. Gracias a Node podemos crear un servidor usando JavaScript.",
+      "En NickoChat App, Node ejecutará el archivo del servidor y mantendrá la aplicación corriendo."
+    ],
+    code: "npm install\nnpm run dev\nnpm start",
+    quote: "JavaScript ya no vive solo en el navegador: también puede vivir en el servidor."
+  },
+  {
+    type: "content",
+    eyebrow: "Tecnología",
+    title: "¿Qué es npm?",
+    body: [
+      "npm es un gestor de paquetes. Sirve para instalar dependencias y ejecutar comandos definidos en package.json.",
+      "En este proyecto lo usamos para instalar Express, Socket.IO, dotenv y nodemon."
+    ],
+    code: "npm install express socket.io dotenv\nnpm install -D nodemon\nnpm run dev",
+    quote: "npm nos permite reconstruir el proyecto en otra computadora siguiendo los mismos pasos."
+  },
+  {
+    type: "content",
+    eyebrow: "Configuración",
+    title: "package.json, scripts y dependencias",
+    body: [
+      "package.json funciona como ficha técnica del proyecto. Indica el nombre, la versión, los scripts y las dependencias que hacen falta.",
+      "Los scripts permiten ejecutar comandos con nombres simples."
+    ],
+    code: "\"scripts\": {\n  \"dev\": \"nodemon src/server.js\",\n  \"start\": \"node src/server.js\"\n}",
+    bullets: [
+      "dev se usa durante desarrollo.",
+      "start se usa para ejecutar la app en producción.",
+      "dependencies contiene paquetes que la app necesita.",
+      "devDependencies contiene herramientas de desarrollo."
+    ]
+  },
+  {
+    type: "cards",
+    eyebrow: "Configuración",
+    title: "Variables de entorno",
+    body: [
+      "Una variable de entorno permite configurar la aplicación sin escribir valores directamente dentro del código.",
+      "En producción, plataformas como Railway pueden entregar valores propios como el puerto del servidor."
+    ],
+    cards: [
+      { title: "PORT", text: "Puerto donde la plataforma espera que escuche el servidor.", tone: "blue" },
+      { title: "APP_NAME", text: "Nombre configurable de la app.", tone: "purple" },
+      { title: "MAX_MESSAGE_LENGTH", text: "Límite de caracteres para los mensajes.", tone: "yellow" }
+    ],
+    quote: "El código se versiona; la configuración puede cambiar según el ambiente."
+  },
+  {
+    type: "content",
+    eyebrow: "Seguridad básica",
+    title: ".env, .env.example y .gitignore",
+    body: [
+      ".env puede contener configuración local o datos sensibles. Por eso no debería subirse al repositorio.",
+      ".env.example sí se sube, porque sirve como plantilla para que otra persona sepa qué variables debe crear.",
+      ".gitignore indica qué archivos o carpetas Git debe ignorar."
+    ],
+    code: ".gitignore\n\nnode_modules\n.env\n.DS_Store"
+  },
+  {
+    type: "content",
+    eyebrow: "Despliegue",
+    title: "¿Qué significa deploy?",
+    body: [
+      "Deploy significa publicar la aplicación en un ambiente donde pueda ejecutarse fuera de nuestra computadora.",
+      "Antes del deploy, NickoChat App funcionará en localhost. Después del deploy, podrá abrirse desde una URL pública."
+    ],
+    cards: [
+      { title: "Localhost", text: "Funciona en mi computadora.", tone: "slate" },
+      { title: "Railway", text: "Ejecuta el servidor en la nube.", tone: "purple" },
+      { title: "URL pública", text: "Permite que otros entren desde internet.", tone: "green" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Railway",
+    title: "¿Qué veremos en Railway?",
+    body: [
+      "Railway nos permite desplegar el servidor, ver logs, configurar variables y generar una URL pública.",
+      "Para esta práctica nos interesa que los alumnos vean que la app deja de depender de una computadora local y pasa a correr como servicio."
+    ],
+    bullets: [
+      "Deployments: historial de publicaciones.",
+      "Logs: actividad del servidor.",
+      "Variables: configuración del ambiente.",
+      "Domain: URL pública de la app."
+    ]
+  },
+  {
+    type: "diagram",
+    eyebrow: "Flujo completo",
+    title: "De la computadora al servidor",
+    flow: [
+      "Código local",
+      "Git commit",
+      "Repositorio GitHub",
+      "Railway toma el proyecto",
+      "Instala dependencias",
+      "Ejecuta npm start",
+      "App online"
+    ],
+    quote: "El deploy transforma código en una aplicación accesible."
+  },
+  {
+    type: "compare",
+    eyebrow: "Alcance",
+    title: "Qué tendrá y qué no tendrá esta versión",
+    cards: [
+      { title: "Sí tendrá", text: "Nombre de usuario, conectados, canal global, mensajes en tiempo real, logs, /health y deploy.", tone: "green" },
+      { title: "No tendrá todavía", text: "Contraseñas, base de datos, Redis, historial permanente, salas privadas, archivos ni moderación avanzada.", tone: "red" }
+    ],
+    quote: "Reducir alcance no es hacer menos: es hacer foco."
+  },
+  {
+    type: "content",
+    eyebrow: "Calidad mínima",
+    title: "Buenas prácticas que ya vamos a aplicar",
+    bullets: [
+      "Separar frontend, estilos y servidor.",
+      "Usar nombres de eventos claros.",
+      "Validar datos básicos.",
+      "No subir node_modules.",
+      "No subir .env.",

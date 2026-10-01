@@ -1,0 +1,201 @@
+      "Documentar cómo ejecutar el proyecto.",
+      "Hacer commits con mensajes claros.",
+      "Probar localmente antes de desplegar."
+    ]
+  },
+  {
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Qué hace Express en NickoChat App?",
+    cards: [
+      { title: "A", text: "Sirve el frontend y permite crear rutas del servidor.", tone: "green" },
+      { title: "B", text: "Reemplaza a GitHub.", tone: "red" },
+      { title: "C", text: "Guarda datos permanentemente por sí solo.", tone: "red" },
+      { title: "D", text: "Diseña automáticamente la interfaz.", tone: "red" }
+    ],
+    quote: "Respuesta correcta: A"
+  },
+  {
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Qué permite Socket.IO?",
+    cards: [
+      { title: "A", text: "Comunicación en tiempo real mediante eventos entre navegador y servidor.", tone: "green" },
+      { title: "B", text: "Crear una base de datos automáticamente.", tone: "red" },
+      { title: "C", text: "Eliminar la necesidad de un backend.", tone: "red" },
+      { title: "D", text: "Subir archivos a GitHub sin commits.", tone: "red" }
+    ],
+    quote: "Respuesta correcta: A"
+  },
+  {
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Qué pasa si reinicia el servidor y usamos memoria?",
+    cards: [
+      { title: "A", text: "Los datos temporales pueden perderse.", tone: "green" },
+      { title: "B", text: "Los datos se guardan para siempre.", tone: "red" },
+      { title: "C", text: "GitHub recupera automáticamente los mensajes.", tone: "red" },
+      { title: "D", text: "El navegador se convierte en base de datos.", tone: "red" }
+    ],
+    quote: "Respuesta correcta: A"
+  },
+  {
+    type: "closing",
+    eyebrow: "Cierre",
+    title: "Qué tiene que quedar claro antes de programar",
+    bullets: [
+      "La app tendrá frontend y backend.",
+      "Express servirá la aplicación.",
+      "Socket.IO permitirá tiempo real.",
+      "El servidor será el punto común entre usuarios.",
+      "La memoria será temporal.",
+      "Railway permitirá desplegar la app.",
+      "GitHub será la fuente del proyecto.",
+      "Después pasamos a construirlo paso a paso."
+    ],
+    quote: "Primero entendemos el mapa. Después escribimos el código."
+  }
+];
+
+function App() {
+  const [current, setCurrent] = useState(0);
+  const slide = slides[current];
+  const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
+
+  const next = () => setCurrent((value) => Math.min(value + 1, slides.length - 1));
+  const prev = () => setCurrent((value) => Math.max(value - 1, 0));
+
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        next();
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        prev();
+      }
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        void toggleFullscreen();
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        setCurrent(0);
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        setCurrent(slides.length - 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  return (
+    <main className="deck">
+      <header className="deck-header">
+        <div>
+          <span>NickoChat App · Introducción al proyecto</span>
+          <strong>{current + 1} / {slides.length}</strong>
+        </div>
+
+        <nav>
+          <button onClick={prev} disabled={current === 0}>Anterior</button>
+          <button onClick={next} disabled={current === slides.length - 1}>Siguiente</button>
+          <button onClick={toggleFullscreen}>Pantalla completa</button>
+        </nav>
+      </header>
+
+      <div className="progress">
+        <div style={{ width: `${progress}%` }} />
+      </div>
+
+      <section className={`slide slide-${slide.type}`}>
+        <SlideView slide={slide} />
+      </section>
+
+      <footer className="deck-footer">
+        <span>← → navegar</span>
+        <span>F pantalla completa</span>
+        <span>Home / End</span>
+      </footer>
+    </main>
+  );
+}
+
+function SlideView({ slide }: { slide: Slide }) {
+  return (
+    <div className="slide-grid">
+      <article className="content-zone">
+        <p className="eyebrow">{slide.eyebrow}</p>
+        <h1>{slide.title}</h1>
+
+        {slide.subtitle && <p className="subtitle">{slide.subtitle}</p>}
+
+        {slide.body?.map((paragraph) => (
+          <p className="body-text" key={paragraph}>{paragraph}</p>
+        ))}
+
+        {slide.bullets && <BulletList items={slide.bullets} />}
+        {slide.flow && <Flow items={slide.flow} />}
+        {slide.code && <pre className="code-block"><code>{slide.code}</code></pre>}
+        {slide.quote && <blockquote>{slide.quote}</blockquote>}
+      </article>
+
+      <aside className="visual-zone">
+        {slide.cards ? <Cards cards={slide.cards} /> : <AnimatedVisual type={slide.type} />}
+      </aside>
+    </div>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="bullet-list">
+      {items.map((item, index) => (
+        <li style={{ animationDelay: `${index * 70}ms` }} key={item}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+
+function Cards({ cards }: { cards: Card[] }) {
+  return (
+    <div className="cards">
+      {cards.map((card, index) => (
+        <article className={`card tone-${card.tone ?? "blue"}`} style={{ animationDelay: `${index * 90}ms` }} key={card.title + card.text}>
+          <h2>{card.title}</h2>
+          <p>{card.text}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function Flow({ items }: { items: string[] }) {
+  return (
+    <div className="flow">
+      {items.map((item, index) => (
+        <div className="flow-item" style={{ animationDelay: `${index * 95}ms` }} key={item}>
+          <span>{item}</span>
+          {index < items.length - 1 && <b>→</b>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AnimatedVisual({ type }: { type: Slide["type"] }) {
+  const labels: Record<Slide["type"], string> = {
+    cover: "NICKOCHAT",
+    content: "CONCEPTO",

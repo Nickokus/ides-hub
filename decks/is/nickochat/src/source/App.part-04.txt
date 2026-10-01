@@ -1,0 +1,22 @@
+    compare: "COMPARAR",
+    diagram: "FLUJO",
+    cards: "CAPAS",
+    quiz: "REPASO",
+    closing: "A PROGRAMAR"
+  };
+
+  return (
+    <div className="animated-visual">
+      <div className="ring ring-a" />
+      <div className="ring ring-b" />
+      <div className="ring ring-c" />
+      <div className="node node-a">frontend</div>
+      <div className="node node-b">backend</div>
+      <div className="node node-c">socket</div>
+      <div className="node node-d">deploy</div>
+      <strong>{labels[type]}</strong>
+    </div>
+  );
+}
+
+export default App;

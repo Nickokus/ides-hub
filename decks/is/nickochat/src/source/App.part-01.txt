@@ -1,0 +1,155 @@
+
+import { useEffect, useMemo, useState } from "react";
+
+type Tone = "blue" | "green" | "yellow" | "red" | "purple" | "slate";
+
+type Card = {
+  title: string;
+  text: string;
+  tone?: Tone;
+};
+
+type Slide = {
+  type: "cover" | "content" | "compare" | "diagram" | "cards" | "quiz" | "closing";
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  body?: string[];
+  bullets?: string[];
+  cards?: Card[];
+  flow?: string[];
+  code?: string;
+  quote?: string;
+};
+
+const slides: Slide[] = [
+  {
+    type: "cover",
+    eyebrow: "Clase práctica guiada",
+    title: "NickoChat App",
+    subtitle: "Un mini proyecto para entender cómo una aplicación web puede conectar varios usuarios en tiempo real y desplegarse en Railway.",
+    quote: "La idea no es hacer un Discord. La idea es entender frontend, backend, eventos, servidor y deploy."
+  },
+  {
+    type: "content",
+    eyebrow: "Objetivo de la clase",
+    title: "¿Qué vamos a construir después?",
+    body: [
+      "Vamos a preparar una aplicación pequeña donde cada alumno pueda ingresar con un nombre, ver quiénes están conectados y enviar mensajes a un canal global.",
+      "El proyecto será simple, pero representa una arquitectura real: una interfaz en el navegador, un servidor común, comunicación en tiempo real y despliegue en la nube."
+    ],
+    quote: "Un proyecto pequeño puede servir para entender ideas grandes."
+  },
+  {
+    type: "content",
+    eyebrow: "Qué problema resuelve",
+    title: "Una página sola no alcanza para conectar usuarios",
+    body: [
+      "Con HTML, CSS y JavaScript podemos crear una interfaz que funciona en el navegador. Pero si dos personas abren esa página, cada navegador vive su propia experiencia.",
+      "Para que varias personas compartan información al mismo tiempo, necesitamos un punto común: un servidor."
+    ],
+    bullets: [
+      "El navegador muestra la interfaz.",
+      "El servidor recibe eventos.",
+      "El servidor decide qué información compartir.",
+      "Todos los usuarios ven los cambios sin recargar."
+    ]
+  },
+  {
+    type: "diagram",
+    eyebrow: "Arquitectura simple",
+    title: "Frontend + Backend + Tiempo real",
+    flow: [
+      "Alumno abre la web",
+      "Frontend carga en el navegador",
+      "Socket.IO conecta con el servidor",
+      "Backend registra usuarios y mensajes",
+      "Todos reciben actualizaciones"
+    ],
+    quote: "Los usuarios no se hablan directamente entre sí: todos se conectan al mismo servidor."
+  },
+  {
+    type: "cards",
+    eyebrow: "Capa 1",
+    title: "Frontend",
+    body: [
+      "El frontend es la parte visual e interactiva que se ejecuta en el navegador del usuario. En NickoChat App será la pantalla de ingreso, el dashboard, la lista de conectados y el panel de mensajes."
+    ],
+    cards: [
+      { title: "HTML", text: "Define la estructura: formularios, botones, secciones y listas.", tone: "blue" },
+      { title: "CSS", text: "Define el aspecto visual: colores, layout, tamaños y responsive.", tone: "purple" },
+      { title: "JavaScript", text: "Captura acciones del usuario y actualiza la interfaz.", tone: "yellow" }
+    ]
+  },
+  {
+    type: "cards",
+    eyebrow: "Capa 2",
+    title: "Backend",
+    body: [
+      "El backend es el programa que queda corriendo como servidor. Recibe conexiones, valida información y coordina lo que ven los usuarios conectados."
+    ],
+    cards: [
+      { title: "Servidor común", text: "Todos los navegadores se conectan al mismo lugar.", tone: "blue" },
+      { title: "Reglas", text: "El servidor valida nombres, mensajes y eventos.", tone: "green" },
+      { title: "Logs", text: "Permiten ver qué está ocurriendo mientras la app funciona.", tone: "yellow" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Tecnología",
+    title: "¿Qué es Express?",
+    body: [
+      "Express es un framework para Node.js que permite crear servidores web y APIs de forma simple.",
+      "En este proyecto, Express tendrá dos responsabilidades principales: entregar los archivos del frontend y exponer una ruta de verificación para saber si la app está viva."
+    ],
+    code: "Express en NickoChat App:\n\n1. Sirve /public/index.html\n2. Sirve /public/styles.css\n3. Sirve /public/app.js\n4. Responde GET /health",
+    quote: "Express será la puerta de entrada HTTP de la aplicación."
+  },
+  {
+    type: "content",
+    eyebrow: "Tecnología",
+    title: "¿Qué es Socket.IO?",
+    body: [
+      "Socket.IO es una librería que facilita la comunicación en tiempo real entre el navegador y el servidor.",
+      "En lugar de que el navegador pregunte todo el tiempo si hay mensajes nuevos, se mantiene una conexión activa para enviar y recibir eventos."
+    ],
+    bullets: [
+      "Permite avisar que un usuario entró.",
+      "Permite enviar mensajes al canal global.",
+      "Permite actualizar la lista de conectados.",
+      "Permite notificar que un usuario salió."
+    ],
+    quote: "Socket.IO nos ayuda a que la aplicación se sienta viva."
+  },
+  {
+    type: "compare",
+    eyebrow: "Comunicación",
+    title: "HTTP tradicional vs tiempo real",
+    cards: [
+      { title: "HTTP", text: "El navegador pide algo, el servidor responde y la comunicación termina. Es ideal para cargar páginas, datos o recursos.", tone: "blue" },
+      { title: "Tiempo real", text: "La conexión queda activa. El servidor puede enviar novedades cuando ocurren, sin esperar una recarga.", tone: "green" }
+    ],
+    quote: "HTTP es como tocar timbre. WebSocket es como dejar una llamada abierta."
+  },
+  {
+    type: "content",
+    eyebrow: "Concepto clave",
+    title: "¿Qué es un evento?",
+    body: [
+      "Un evento es una señal con un nombre y, opcionalmente, datos. La aplicación escucha eventos y responde a ellos.",
+      "En NickoChat App, casi todo el comportamiento importante se puede explicar como eventos entre frontend y backend."
+    ],
+    code: "user:join      → un usuario entra\nchat:message   → un usuario envía mensaje\nusers:update   → el servidor actualiza conectados\nsystem:message → el servidor avisa algo\ndisconnect     → un usuario se desconecta"
+  },
+  {
+    type: "diagram",
+    eyebrow: "Flujo de entrada",
+    title: "Cuando un alumno entra al chat",
+    flow: [
+      "Escribe su nombre",
+      "Frontend valida el texto",
+      "Frontend emite user:join",
+      "Backend registra al usuario",
+      "Backend emite users:update",
+      "Todos ven la lista actualizada"
+    ],
