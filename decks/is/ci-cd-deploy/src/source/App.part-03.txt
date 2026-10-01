@@ -1,0 +1,29 @@
+"Tests y build automáticos.","Variables sensibles fuera del código.","Documentación de cómo ejecutar el proyecto.","Main estable."] },
+  { type: "content", eyebrow: "Variables y secretos", title: "Deploy también implica configuración", body: ["Muchas aplicaciones necesitan datos de configuración: URLs, claves, tokens, usuarios, contraseñas o parámetros del ambiente.","Esa información no debería quedar escrita directamente en el código ni subirse al repositorio. Para eso se usan variables de entorno y secretos configurados en la plataforma."], quote: "El código se versiona; los secretos se protegen." },
+  { type: "content", eyebrow: "Fallas comunes", title: "Cuando CI o deploy fallan", bullets: ["Error de sintaxis o de tipos.","Dependencia faltante.","Script mal definido en package.json.","Build que funciona localmente pero falla en la nube.","Variable de entorno no configurada.","Diferencia entre mayúsculas y minúsculas en nombres de archivos.","Versión incorrecta del entorno de ejecución."], quote: "Un fallo no es el final del proceso: es información para corregir." },
+  { type: "pipeline", eyebrow: "Procedimiento", title: "Cómo proceder cuando falla", flow: ["Leer el error","Identificar el paso","Reproducir localmente","Corregir","Commit","Push","Revisar de nuevo"], quote: "No se corrige a ciegas: primero se entiende dónde falló." },
+  { type: "content", eyebrow: "Para alumnos", title: "Qué deberían llevarse de esta clase", bullets: ["CI es integración y verificación automática.","CD prepara o publica versiones de forma controlada.","Deploy es publicar una versión para que se ejecute fuera de mi computadora.","Un pipeline es una secuencia de pasos automáticos.","Un workflow define cuándo y cómo se ejecutan esos pasos.","Build, test y linting son controles habituales.","Producción requiere más cuidado que el ambiente local."] },
+  { type: "quiz", eyebrow: "Pregunta tipo parcial", title: "¿Qué busca principalmente Continuous Integration?", cards: [{title:"A",text:"Publicar directamente cualquier cambio sin revisión.",tone:"red"},{title:"B",text:"Verificar automáticamente que los cambios puedan integrarse sin romper el proyecto.",tone:"green"},{title:"C",text:"Reemplazar por completo la revisión humana.",tone:"red"},{title:"D",text:"Diseñar la interfaz visual del sistema.",tone:"red"}], quote: "Respuesta correcta: B" },
+  { type: "quiz", eyebrow: "Pregunta tipo parcial", title: "¿Qué es deploy?", cards: [{title:"A",text:"La acción de publicar una versión del software en un ambiente donde pueda ejecutarse.",tone:"green"},{title:"B",text:"Un comentario dentro del código.",tone:"red"},{title:"C",text:"Una rama local sin subir.",tone:"red"},{title:"D",text:"Una imagen decorativa de la aplicación.",tone:"red"}], quote: "Respuesta correcta: A" },
+  { type: "quiz", eyebrow: "Pregunta tipo parcial", title: "¿Cuál es la diferencia entre Delivery y Deployment continuo?", cards: [{title:"A",text:"Delivery deja listo para publicar; Deployment publica automáticamente si todo pasa.",tone:"green"},{title:"B",text:"Son exactamente lo mismo.",tone:"red"},{title:"C",text:"Delivery solo sirve para CSS.",tone:"red"},{title:"D",text:"Deployment es guardar archivos en la computadora local.",tone:"red"}], quote: "Respuesta correcta: A" },
+  { type: "closing", eyebrow: "Cierre", title: "CI/CD es disciplina + automatización", body: ["La idea no es aprender nombres de herramientas de memoria. La idea es entender el flujo: crear cambios, integrarlos con cuidado, verificarlos, preparar versiones y publicarlas de forma controlada.","Cuando un proyecto crece, estas prácticas ayudan a trabajar con más confianza, especialmente cuando hay equipo, repositorio compartido y usuarios que dependen de la aplicación."], quote: "CI/CD no es magia: es una forma ordenada de reducir errores antes de entregar software." }
+];
+
+function App() {
+  const [current, setCurrent] = useState(0);
+  const slide = slides[current];
+  const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
+  const next = () => setCurrent((value) => Math.min(value + 1, slides.length - 1));
+  const prev = () => setCurrent((value) => Math.max(value - 1, 0));
+  const toggleFullscreen = async () => { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); };
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") { event.preventDefault(); next(); }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") { event.preventDefault(); prev(); }
+      if (event.key.toLowerCase() === "f") { event.preventDefault(); void toggleFullscreen(); }
+      if (event.key === "Home") { event.preventDefault(); setCurrent(0); }
+      if (event.key === "End") { event.preventDefault(); setCurrent(slides.length - 1); }
+    };
+    window.addEventListener("keydown", handleKey); return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+  return (<main className="deck"><header className="deck-header"><div><span>Ingeniería de Software · Clase teórica</span><strong>{current + 1} / {slides.length}</strong></div><nav><button onClick={prev} disabled={current === 0}>Anterior</button><button onClick={next} disabled={current === slides.length - 1}>Siguiente</button><button onClick={toggleFullscreen}>Pantalla completa</button></nav></header><div className="progress"><div style={{ width: `${progress}%` }} /></div><section className={`slide slide-${slide.type}`}><SlideView slide={slide} />
