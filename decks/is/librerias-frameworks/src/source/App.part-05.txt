@@ -1,0 +1,32 @@
+    library: "Librería",
+    framework: "Framework",
+    manager: "Gestor",
+    tool: "Herramienta",
+    language: "Lenguaje"
+  };
+
+  return labels[kind];
+}
+
+function ConceptVisual({ type }: { type: Slide["type"] }) {
+  const title = {
+    cover: "BASE + HERRAMIENTAS",
+    content: "CONCEPTO",
+    compare: "COMPARAR",
+    logos: "ECOSISTEMA",
+    steps: "PASO A PASO",
+    quiz: "REPASO",
+    recap: "CIERRE"
+  }[type];
+
+  return (
+    <div className="concept-visual">
+      <div className="orbit orbit-a"></div>
+      <div className="orbit orbit-b"></div>
+      <div className="orbit orbit-c"></div>
+      <strong>{title}</strong>
+    </div>
+  );
+}
+
+export default App;

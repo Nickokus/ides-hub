@@ -1,0 +1,215 @@
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Para qué sirve un gestor de paquetes?",
+    cards: [
+      { title: "A", text: "Para instalar y administrar dependencias del proyecto.", tone: "green" },
+      { title: "B", text: "Para reemplazar Git.", tone: "red" },
+      { title: "C", text: "Para escribir HTML automáticamente.", tone: "red" },
+      { title: "D", text: "Para publicar videos en internet.", tone: "red" }
+    ],
+    quote: "Respuesta correcta: A"
+  },
+  {
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Qué archivo declara scripts y dependencias en un proyecto Node?",
+    cards: [
+      { title: "A", text: "index.html", tone: "red" },
+      { title: "B", text: "style.css", tone: "red" },
+      { title: "C", text: "package.json", tone: "green" },
+      { title: "D", text: "README.md", tone: "red" }
+    ],
+    quote: "Respuesta correcta: C"
+  },
+  {
+    type: "recap",
+    eyebrow: "Cierre",
+    title: "Ideas que tienen que quedar claras",
+    bullets: [
+      "Una librería resuelve tareas específicas.",
+      "Un framework propone una estructura más completa.",
+      "Una dependencia es código externo que el proyecto necesita.",
+      "Un gestor de paquetes instala y administra dependencias.",
+      "package.json describe scripts y dependencias.",
+      "Vite ayuda a trabajar con proyectos frontend modernos.",
+      "TypeScript agrega tipos sobre JavaScript.",
+      "Las herramientas modernas no reemplazan la base: la organizan y la amplían."
+    ],
+    quote: "Primero entendemos la base. Después usamos herramientas para construir mejor."
+  }
+];
+
+function App() {
+  const [current, setCurrent] = useState(0);
+  const slide = slides[current];
+
+  const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
+
+  const next = () => setCurrent((value) => Math.min(value + 1, slides.length - 1));
+  const prev = () => setCurrent((value) => Math.max(value - 1, 0));
+
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        next();
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        prev();
+      }
+
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        void toggleFullscreen();
+      }
+
+      if (event.key === "Home") {
+        event.preventDefault();
+        setCurrent(0);
+      }
+
+      if (event.key === "End") {
+        event.preventDefault();
+        setCurrent(slides.length - 1);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  return (
+    <main className="deck-shell">
+      <div className="topbar">
+        <div className="topbar-left">
+          <span>Herramientas modernas de desarrollo web</span>
+          <strong>{current + 1} / {slides.length}</strong>
+        </div>
+
+        <div className="topbar-actions">
+          <button onClick={prev} disabled={current === 0}>Anterior</button>
+          <button onClick={next} disabled={current === slides.length - 1}>Siguiente</button>
+          <button onClick={toggleFullscreen}>Pantalla completa</button>
+        </div>
+      </div>
+
+      <div className="progress-track">
+        <div className="progress-bar" style={{ width: `${progress}%` }} />
+      </div>
+
+      <section className={`slide slide-${slide.type}`}>
+        <SlideView slide={slide} />
+      </section>
+
+      <footer className="footer-help">
+        <span>← → navegar</span>
+        <span>F pantalla completa</span>
+        <span>Home / End inicio y final</span>
+      </footer>
+    </main>
+  );
+}
+
+function SlideView({ slide }: { slide: Slide }) {
+  return (
+    <div className="slide-grid">
+      <article className="slide-main">
+        <p className="eyebrow">{slide.eyebrow}</p>
+        <h1>{slide.title}</h1>
+
+        {slide.subtitle && <p className="subtitle">{slide.subtitle}</p>}
+
+        {slide.body?.map((paragraph) => (
+          <p className="body-text" key={paragraph}>{paragraph}</p>
+        ))}
+
+        {slide.bullets && <BulletList items={slide.bullets} />}
+
+        {slide.steps && <StepList items={slide.steps} />}
+
+        {slide.code && (
+          <pre className="code-block">
+            <code>{slide.code}</code>
+          </pre>
+        )}
+
+        {slide.quote && <blockquote>{slide.quote}</blockquote>}
+      </article>
+
+      <aside className="slide-aside">
+        {slide.logos && <LogoCloud names={slide.logos} />}
+        {slide.cards && <CardGrid cards={slide.cards} />}
+        {!slide.logos && !slide.cards && <ConceptVisual type={slide.type} />}
+      </aside>
+    </div>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="bullet-list">
+      {items.map((item) => <li key={item}>{item}</li>)}
+    </ul>
+  );
+}
+
+function StepList({ items }: { items: string[] }) {
+  return (
+    <ol className="step-list">
+      {items.map((item, index) => (
+        <li key={item}>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <p>{item}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function CardGrid({ cards }: { cards: Card[] }) {
+  return (
+    <div className="cards">
+      {cards.map((card) => (
+        <article className={`card tone-${card.tone ?? "blue"}`} key={card.title + card.text}>
+          <h2>{card.title}</h2>
+          <p>{card.text}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function LogoCloud({ names }: { names: string[] }) {
+  return (
+    <div className="logo-cloud">
+      {names.map((name, index) => {
+        const logo = logos.find((item) => item.name === name);
+
+        if (!logo) return null;
+
+        return (
+          <article className="logo-card" style={{ "--brand": logo.color, animationDelay: `${index * 70}ms` } as React.CSSProperties} key={logo.name}>
+            <div className="logo-frame">
+              <img src={logo.src} alt={`Logo de ${logo.name}`} />
+            </div>
+            <strong>{logo.name}</strong>
+            <span>{labelForKind(logo.kind)}</span>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function labelForKind(kind: Logo["kind"]) {
+  const labels = {

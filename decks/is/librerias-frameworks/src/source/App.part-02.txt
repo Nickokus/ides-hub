@@ -1,0 +1,128 @@
+      "Un framework es una estructura de trabajo más completa. No solo ofrece herramientas: también propone una forma de organizar una parte importante del proyecto.",
+      "Un framework puede definir convenciones, carpetas, rutas, componentes, manejo de datos y formas de construir pantallas."
+    ],
+    cards: [
+      { title: "Estructura", text: "Propone una forma de ordenar el proyecto.", tone: "blue" },
+      { title: "Convenciones", text: "Define reglas o caminos recomendados.", tone: "yellow" },
+      { title: "Escala", text: "Ayuda especialmente cuando el proyecto crece.", tone: "green" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Analogía",
+    title: "Un framework es una cocina organizada",
+    body: [
+      "No es solo una caja con herramientas. Es un espacio con estaciones, reglas, lugares definidos y procesos.",
+      "Eso puede acelerar el trabajo porque no partimos de cero, pero también nos exige aprender la forma de trabajar que propone."
+    ],
+    quote: "El framework nos da un camino; nosotros seguimos ese camino para construir más rápido y con más orden."
+  },
+  {
+    type: "compare",
+    eyebrow: "Diferencia clave",
+    title: "Librería vs framework",
+    cards: [
+      { title: "Librería", text: "La usamos cuando la necesitamos. Nuestro código controla el flujo principal. Resuelve problemas específicos y suele ser más flexible.", tone: "blue" },
+      { title: "Framework", text: "Define una estructura más grande. Propone convenciones. Muchas veces el framework controla parte del flujo y llama a nuestro código.", tone: "green" }
+    ],
+    quote: "Con una librería, yo llamo a la herramienta. Con un framework, muchas veces la herramienta organiza cómo se ejecuta mi código."
+  },
+  {
+    type: "logos",
+    eyebrow: "Ejemplos",
+    title: "Librerías comunes en proyectos web",
+    subtitle: "Cada una ayuda con una necesidad concreta: interfaces, peticiones, gráficos, fechas o utilidades.",
+    logos: ["React", "Axios", "Chart.js", "date-fns", "Lodash"],
+    cards: [
+      { title: "React", text: "Construcción de interfaces mediante componentes.", tone: "blue" },
+      { title: "Axios", text: "Peticiones HTTP a APIs.", tone: "purple" },
+      { title: "Chart.js", text: "Gráficos y visualización de datos.", tone: "red" },
+      { title: "date-fns", text: "Trabajo con fechas.", tone: "yellow" },
+      { title: "Lodash", text: "Funciones utilitarias para datos.", tone: "slate" }
+    ]
+  },
+  {
+    type: "logos",
+    eyebrow: "Ejemplos",
+    title: "Frameworks conocidos",
+    subtitle: "Proponen estructuras más completas para construir aplicaciones o sistemas.",
+    logos: ["Angular", "Vue", "Next.js", "Nuxt", "SvelteKit", "Laravel", "Django", "Spring Boot"],
+    cards: [
+      { title: "Frontend", text: "Angular, Vue, Next.js, Nuxt y SvelteKit ayudan a construir interfaces y aplicaciones web.", tone: "blue" },
+      { title: "Backend", text: "Laravel, Django y Spring Boot ayudan a construir sistemas del lado del servidor.", tone: "green" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Beneficios",
+    title: "¿Por qué usar librerías?",
+    bullets: [
+      "Evitan reinventar soluciones comunes.",
+      "Ahorran tiempo de desarrollo.",
+      "Aprovechan código probado por muchas personas.",
+      "Ayudan a resolver tareas específicas más rápido.",
+      "Suelen tener documentación y comunidad.",
+      "Permiten concentrarse en el problema principal del proyecto."
+    ],
+    quote: "Una librería bien elegida resuelve una parte del problema sin tomar control de todo el proyecto."
+  },
+  {
+    type: "content",
+    eyebrow: "Beneficios",
+    title: "¿Por qué usar frameworks?",
+    bullets: [
+      "Ordenan proyectos grandes.",
+      "Proponen convenciones comunes.",
+      "Facilitan el trabajo en equipo.",
+      "Ayudan a reutilizar componentes.",
+      "Separan responsabilidades.",
+      "Reducen decisiones repetitivas al iniciar proyectos."
+    ],
+    quote: "Un framework puede evitar que cada equipo invente desde cero su propia forma de organizar todo."
+  },
+  {
+    type: "content",
+    eyebrow: "Cuidado",
+    title: "No todo se arregla agregando herramientas",
+    body: [
+      "Las herramientas modernas son útiles, pero no reemplazan el criterio. Agregar librerías o frameworks sin entender la base puede hacer el proyecto más difícil de mantener.",
+      "Cada dependencia suma algo que aprender, actualizar y cuidar. Por eso conviene elegir herramientas por necesidad, no por moda."
+    ],
+    cards: [
+      { title: "Riesgo", text: "Más configuración y más dependencias.", tone: "red" },
+      { title: "Riesgo", text: "Posibles incompatibilidades o cambios de versión.", tone: "yellow" },
+      { title: "Regla", text: "Primero entender la base, después sumar herramientas.", tone: "green" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Definición clara",
+    title: "¿Qué es una dependencia?",
+    body: [
+      "Una dependencia es un paquete externo que nuestro proyecto necesita para funcionar o para desarrollarse.",
+      "Si usamos Vite para levantar el proyecto, Vite es una dependencia de desarrollo. Si usamos una librería de gráficos, esa librería también será una dependencia."
+    ],
+    code: '"devDependencies": {\n  "vite": "latest",\n  "typescript": "latest"\n}',
+    quote: "Una dependencia es código externo que el proyecto declara que necesita."
+  },
+  {
+    type: "logos",
+    eyebrow: "Gestores",
+    title: "¿Qué es un gestor de paquetes?",
+    subtitle: "Es una herramienta que instala, actualiza y administra dependencias.",
+    logos: ["npm", "Yarn", "pnpm", "Bun"],
+    cards: [
+      { title: "npm", text: "El gestor más habitual en proyectos Node.js.", tone: "red" },
+      { title: "Yarn", text: "Alternativa popular para instalar y administrar paquetes.", tone: "blue" },
+      { title: "pnpm", text: "Gestor eficiente en espacio y velocidad.", tone: "yellow" },
+      { title: "Bun", text: "Herramienta moderna que integra varias funciones.", tone: "green" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Archivo clave",
+    title: "¿Qué es package.json?",
+    body: [
+      "package.json es la ficha técnica del proyecto Node. Describe el nombre del proyecto, versión, scripts, dependencias y configuración básica.",
+      "Cuando alguien recibe el repositorio, package.json le permite saber qué comandos usar y qué paquetes necesita instalar."
+    ],

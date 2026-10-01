@@ -1,0 +1,114 @@
+
+import { useEffect, useMemo, useState } from "react";
+
+type Logo = {
+  name: string;
+  kind: "library" | "framework" | "manager" | "tool" | "language";
+  src: string;
+  color: string;
+};
+
+type Card = {
+  title: string;
+  text: string;
+  tone?: "blue" | "green" | "yellow" | "red" | "purple" | "slate";
+};
+
+type Slide = {
+  type: "cover" | "content" | "compare" | "logos" | "steps" | "quiz" | "recap";
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  body?: string[];
+  bullets?: string[];
+  cards?: Card[];
+  logos?: string[];
+  code?: string;
+  steps?: string[];
+  quote?: string;
+};
+
+const logos: Logo[] = [
+  { name: "React", kind: "library", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg", color: "#61dafb" },
+  { name: "Axios", kind: "library", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/axios.svg", color: "#5a29e4" },
+  { name: "Chart.js", kind: "library", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/chartdotjs.svg", color: "#ff6384" },
+  { name: "date-fns", kind: "library", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/datefns.svg", color: "#770c56" },
+  { name: "Lodash", kind: "library", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/lodash.svg", color: "#3492ff" },
+  { name: "Angular", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg", color: "#dd0031" },
+  { name: "Vue", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg", color: "#42b883" },
+  { name: "Next.js", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg", color: "#ffffff" },
+  { name: "Nuxt", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg", color: "#00dc82" },
+  { name: "SvelteKit", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svelte/svelte-original.svg", color: "#ff3e00" },
+  { name: "Laravel", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg", color: "#ff2d20" },
+  { name: "Django", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", color: "#44b78b" },
+  { name: "Spring Boot", kind: "framework", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg", color: "#6db33f" },
+  { name: "npm", kind: "manager", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg", color: "#cb3837" },
+  { name: "Yarn", kind: "manager", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/yarn/yarn-original.svg", color: "#2c8ebb" },
+  { name: "pnpm", kind: "manager", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/pnpm.svg", color: "#f69220" },
+  { name: "Bun", kind: "manager", src: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/bun.svg", color: "#fbf0df" },
+  { name: "Node.js", kind: "tool", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg", color: "#68a063" },
+  { name: "Vite", kind: "tool", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg", color: "#a855f7" },
+  { name: "TypeScript", kind: "language", src: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg", color: "#3178c6" }
+];
+
+const slides: Slide[] = [
+  {
+    type: "cover",
+    eyebrow: "Clase teórica",
+    title: "Librerías, frameworks y gestores de paquetes",
+    subtitle: "Herramientas que ayudan a construir proyectos web modernos, ordenados y preparados para crecer.",
+    quote: "La base sigue siendo HTML, CSS y JavaScript. Las herramientas modernas nos ayudan a trabajar mejor."
+  },
+  {
+    type: "content",
+    eyebrow: "Punto de partida",
+    title: "Venimos de archivos simples",
+    body: [
+      "Para aprender las bases, está perfecto trabajar con archivos sueltos: un HTML para la estructura, un CSS para el diseño y un JavaScript para el comportamiento.",
+      "Ese enfoque permite entender qué hace cada tecnología. Pero cuando el proyecto crece, empiezan a aparecer necesidades nuevas: reutilizar código, instalar herramientas, organizar carpetas, compilar, probar, compartir y mantener."
+    ],
+    code: "index.html\nstyles.css\napp.js"
+  },
+  {
+    type: "content",
+    eyebrow: "Problema real",
+    title: "¿Qué pasa cuando un proyecto crece?",
+    bullets: [
+      "Se repiten soluciones que ya existen.",
+      "Aparecen muchos archivos y cuesta ordenarlos.",
+      "Varios integrantes necesitan trabajar sobre el mismo proyecto.",
+      "Hay que instalar herramientas de forma consistente.",
+      "Se necesita preparar una versión final para publicar.",
+      "Conviene usar una estructura que sea mantenible."
+    ],
+    quote: "Las librerías, frameworks y gestores de paquetes aparecen para resolver problemas de escala, organización y reutilización."
+  },
+  {
+    type: "content",
+    eyebrow: "Definición clara",
+    title: "¿Qué es una librería?",
+    body: [
+      "Una librería es un conjunto de código ya preparado que usamos para resolver una tarea específica. No organiza todo el proyecto por nosotros: nos da herramientas puntuales.",
+      "Nosotros decidimos cuándo usarla, dónde importarla y para qué parte del problema nos sirve."
+    ],
+    cards: [
+      { title: "Idea simple", text: "Una librería resuelve una necesidad concreta.", tone: "blue" },
+      { title: "Control", text: "Nuestro código decide cuándo llamarla.", tone: "green" },
+      { title: "Ejemplos", text: "Fechas, gráficos, validaciones, animaciones, peticiones HTTP.", tone: "purple" }
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Analogía",
+    title: "Una librería es una caja de herramientas",
+    body: [
+      "Una caja de herramientas no construye la casa por nosotros. Pero nos da elementos útiles: martillo, destornillador, metro, pinza o taladro.",
+      "En programación pasa algo parecido: la librería no dirige todo el proyecto, pero nos ayuda con tareas que no queremos programar desde cero."
+    ],
+    quote: "Usar una librería no es hacer trampa: es aprovechar una solución existente de forma responsable."
+  },
+  {
+    type: "content",
+    eyebrow: "Definición clara",
+    title: "¿Qué es un framework?",
+    body: [

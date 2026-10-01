@@ -1,0 +1,212 @@
+.tone-yellow { border-color: rgba(251, 191, 36, 0.36); background: rgba(251, 191, 36, 0.11); }
+.tone-red { border-color: rgba(251, 113, 133, 0.36); background: rgba(251, 113, 133, 0.11); }
+.tone-slate { border-color: rgba(148, 163, 184, 0.32); background: rgba(148, 163, 184, 0.10); }
+
+.code-block {
+  margin: 28px 0 0;
+  padding: 24px;
+  border-radius: 22px;
+  overflow: auto;
+  background: rgba(2, 6, 23, 0.74);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: #bfdbfe;
+  font-size: clamp(18px, 1.18vw, 25px);
+  line-height: 1.45;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.35);
+}
+
+.logo-cloud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.logo-card {
+  min-height: 170px;
+  padding: 18px;
+  border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.18));
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--brand) 18%, transparent), transparent 56%),
+    rgba(255, 255, 255, 0.065);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 12px;
+  animation: logoIn 420ms ease both, logoFloat 4.8s ease-in-out infinite;
+}
+
+@keyframes logoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+
+.logo-frame {
+  width: 72px;
+  height: 72px;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+}
+
+.logo-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logo-card strong {
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.logo-card span {
+  color: var(--muted);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 800;
+}
+
+.step-list {
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+
+.step-list li {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  background: rgba(255, 255, 255, 0.06);
+  animation: itemIn 420ms ease both;
+}
+
+.step-list li span {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  color: #06111f;
+  background: linear-gradient(135deg, var(--blue), var(--green));
+  font-weight: 950;
+  font-size: 22px;
+}
+
+.step-list li p {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: clamp(21px, 1.35vw, 28px);
+  line-height: 1.3;
+}
+
+.concept-visual {
+  min-height: min(62vh, 660px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.20);
+  background:
+    radial-gradient(circle at center, rgba(56, 189, 248, 0.24), transparent 40%),
+    rgba(255, 255, 255, 0.055);
+}
+
+.concept-visual strong {
+  position: relative;
+  z-index: 2;
+  width: min(78%, 580px);
+  padding: 34px 30px;
+  border-radius: 28px;
+  background: rgba(2, 6, 23, 0.74);
+  border: 1px solid rgba(56, 189, 248, 0.30);
+  color: #e0f2fe;
+  text-align: center;
+  font-size: clamp(30px, 3vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.orbit {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  animation: pulse 5s ease-in-out infinite;
+}
+
+.orbit-a { inset: 12%; }
+.orbit-b { inset: 24%; animation-delay: 0.5s; }
+.orbit-c { inset: 36%; animation-delay: 1s; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+.footer-help {
+  width: min(100%, 1880px);
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  color: var(--subtle);
+  font-size: 13px;
+}
+
+@media (max-width: 1180px) {
+  body {
+    overflow: auto;
+  }
+
+  .deck-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .slide {
+    min-height: 720px;
+    padding: 34px;
+  }
+
+  .slide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .topbar-actions {
+    flex-wrap: wrap;
+  }
+
+  .footer-help {
+    flex-wrap: wrap;
+  }
+}

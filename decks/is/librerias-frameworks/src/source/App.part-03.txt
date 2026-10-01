@@ -1,0 +1,140 @@
+    code: '{\n  "name": "mi-proyecto",\n  "version": "1.0.0",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build"\n  },\n  "devDependencies": {\n    "vite": "latest"\n  }\n}'
+  },
+  {
+    type: "content",
+    eyebrow: "Comandos",
+    title: "¿Qué son los scripts?",
+    body: [
+      "Los scripts son comandos guardados dentro de package.json. Sirven para no tener que recordar comandos largos.",
+      "Por ejemplo, en lugar de escribir el comando completo de Vite, usamos npm run dev."
+    ],
+    code: '"scripts": {\n  "dev": "vite",\n  "build": "vite build",\n  "preview": "vite preview"\n}\n\nnpm run dev\nnpm run build\nnpm run preview'
+  },
+  {
+    type: "content",
+    eyebrow: "Instalación",
+    title: "node_modules, lockfile y .gitignore",
+    body: [
+      "Cuando ejecutamos npm install, se descargan las dependencias en una carpeta llamada node_modules.",
+      "Esa carpeta normalmente no se sube a Git porque puede volver a generarse. Para evitar subirla usamos .gitignore.",
+      "El lockfile registra versiones exactas para que todos instalen dependencias de forma más consistente."
+    ],
+    cards: [
+      { title: "node_modules", text: "Carpeta donde se descargan dependencias.", tone: "blue" },
+      { title: "lockfile", text: "Registra versiones exactas instaladas.", tone: "green" },
+      { title: ".gitignore", text: "Indica qué archivos o carpetas no subir a Git.", tone: "yellow" }
+    ]
+  },
+  {
+    type: "logos",
+    eyebrow: "Herramienta moderna",
+    title: "¿Qué es Vite?",
+    subtitle: "Vite ayuda a crear, ejecutar y preparar proyectos frontend modernos.",
+    logos: ["Vite", "Node.js", "TypeScript"],
+    bullets: [
+      "Levanta un servidor local de desarrollo.",
+      "Actualiza cambios rápido en el navegador.",
+      "Permite trabajar con módulos.",
+      "Funciona muy bien con TypeScript.",
+      "Prepara una versión final con build."
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Lenguaje",
+    title: "¿Qué es TypeScript?",
+    body: [
+      "TypeScript es una tecnología basada en JavaScript que agrega tipos. Los tipos permiten declarar qué clase de valor esperamos usar.",
+      "Esto ayuda a detectar errores antes de ejecutar el proyecto y mejora la claridad del código cuando el proyecto crece."
+    ],
+    code: 'let title: string = "Mi proyecto";\nlet visits: number = 120;\nlet active: boolean = true;'
+  },
+  {
+    type: "compare",
+    eyebrow: "Comparación",
+    title: "Abrir HTML vs usar entorno moderno",
+    cards: [
+      { title: "Archivos simples", text: "Sirven para aprender estructura, estilos e interacción básica. Podemos abrir index.html directamente.", tone: "blue" },
+      { title: "Proyecto moderno", text: "Usa package.json, npm install, scripts, dependencias, módulos, servidor local y build final.", tone: "green" }
+    ],
+    quote: "No se trata de abandonar la base. Se trata de preparar el proyecto para crecer."
+  },
+  {
+    type: "content",
+    eyebrow: "Estructura",
+    title: "Cómo se ve un proyecto moderno simple",
+    body: [
+      "Un proyecto moderno tiene una estructura más explícita. Cada archivo tiene una responsabilidad y las herramientas quedan declaradas.",
+      "Esto ayuda a que otra persona pueda instalar, ejecutar y revisar el proyecto con pasos repetibles."
+    ],
+    code: "mi-proyecto/\n├── index.html\n├── package.json\n├── package-lock.json\n├── src/\n│   ├── main.ts\n│   └── style.css\n├── public/\n└── README.md"
+  },
+  {
+    type: "content",
+    eyebrow: "Relación entre piezas",
+    title: "Cómo se conectan estas herramientas",
+    code: "Node.js\n  ↓ permite usar\nnpm\n  ↓ instala dependencias declaradas en\npackage.json\n  ↓ ejecuta scripts como\nnpm run dev\n  ↓ que puede iniciar\nVite\n  ↓ para trabajar con\nTypeScript, módulos y build",
+    quote: "Un proyecto moderno no es una sola herramienta. Es un conjunto de piezas trabajando juntas."
+  },
+  {
+    type: "steps",
+    eyebrow: "Ejemplo guiado",
+    title: "Paso a paso: iniciar un proyecto moderno",
+    subtitle: "Una forma simple, segura y escalable para empezar.",
+    steps: [
+      "Instalar Node.js desde una fuente oficial.",
+      "Crear el proyecto con Vite.",
+      "Elegir una plantilla simple, por ejemplo Vanilla + TypeScript.",
+      "Entrar a la carpeta del proyecto.",
+      "Instalar dependencias con npm install.",
+      "Ejecutar el servidor local con npm run dev.",
+      "Inicializar Git y hacer el primer commit.",
+      "Crear README con objetivo, tecnologías y comandos."
+    ]
+  },
+  {
+    type: "content",
+    eyebrow: "Comandos",
+    title: "Crear un proyecto desde cero",
+    body: [
+      "Este ejemplo crea una base moderna sin empezar con un framework grande. Es una buena transición entre JavaScript básico y proyectos más organizados."
+    ],
+    code: "npm create vite@latest mi-proyecto -- --template vanilla-ts\ncd mi-proyecto\nnpm install\nnpm run dev"
+  },
+  {
+    type: "content",
+    eyebrow: "Git inicial",
+    title: "Guardar el primer punto del proyecto",
+    body: [
+      "Después de verificar que el proyecto funciona, conviene iniciar Git y guardar el primer punto de la historia.",
+      "El primer commit no debería llamarse “cosas” o “final”. Debe explicar qué se hizo."
+    ],
+    code: "git init\ngit status\ngit add .\ngit commit -m \"crea proyecto inicial con Vite y TypeScript\""
+  },
+  {
+    type: "content",
+    eyebrow: "Seguridad y mantenimiento",
+    title: "¿Qué significa empezar de forma segura y escalable?",
+    bullets: [
+      "Instalar herramientas desde fuentes oficiales.",
+      "No subir node_modules al repositorio.",
+      "Mantener package.json y lockfile versionados.",
+      "Evitar agregar dependencias innecesarias.",
+      "Leer documentación antes de instalar paquetes.",
+      "Usar README para que el proyecto pueda ejecutarse en otra computadora.",
+      "Hacer commits pequeños y claros."
+    ]
+  },
+  {
+    type: "quiz",
+    eyebrow: "Pregunta tipo parcial",
+    title: "¿Cuál es la diferencia principal entre librería y framework?",
+    cards: [
+      { title: "A", text: "Una librería reemplaza a HTML y un framework reemplaza a CSS.", tone: "red" },
+      { title: "B", text: "Una librería ayuda en tareas específicas; un framework propone una estructura más completa.", tone: "green" },
+      { title: "C", text: "Un framework solo sirve para instalar paquetes.", tone: "red" },
+      { title: "D", text: "No hay ninguna diferencia.", tone: "red" }
+    ],
+    quote: "Respuesta correcta: B"
+  },
+  {
