@@ -1,0 +1,177 @@
+3. Presionar Guardar
+Esperado: el sistema bloquea el envío y muestra errores
+Actual: se guarda el registro vacío
+Severidad: alta
+Prioridad: alta`,
+    note: "Cuanto más reproducible es el problema, más fácil es corregirlo.",
+    visualLabel: "REPORT"
+  },
+  {
+    eyebrow: "Automatización",
+    title: "¿Qué es un script de testing modular?",
+    body: [
+      "Es una prueba automatizada organizada en pequeñas piezas reutilizables: funciones auxiliares, datos de prueba, preparación de entorno y casos separados por responsabilidad.",
+      "La modularidad mejora mantenimiento. Si cambia una parte del sistema o del proceso de prueba, no hace falta reescribir toda la suite."
+    ],
+    bullets: [
+      "Datos de prueba separados del flujo principal.",
+      "Funciones auxiliares reutilizables.",
+      "Casos agrupados por módulo o funcionalidad.",
+      "Asserts claros y específicos."
+    ],
+    visualLabel: "MODULAR"
+  },
+  {
+    eyebrow: "Código",
+    title: "Ejemplo simple de test unitario en JavaScript",
+    code: `function esMayorDeEdad(edad) {
+  return edad >= 18;
+}
+
+// ejemplo con estilo tipo Vitest/Jest
+test("devuelve true para 18 o más", () => {
+  expect(esMayorDeEdad(18)).toBe(true);
+  expect(esMayorDeEdad(25)).toBe(true);
+});
+
+test("devuelve false para menores de 18", () => {
+  expect(esMayorDeEdad(17)).toBe(false);
+});`,
+    body: [
+      "El ejemplo es simple a propósito: una función pequeña, entradas concretas y un resultado esperado. Ese patrón se repite en muchísimas pruebas unitarias reales."
+    ],
+    visualLabel: "CODE"
+  },
+  {
+    eyebrow: "Código",
+    title: "Ejemplo de caso de validación para una API",
+    code: `test("rechaza mensaje vacío", async () => {
+  const response = await request(app)
+    .post("/api/messages")
+    .send({ text: "" });
+
+  expect(response.status).toBe(400);
+  expect(response.body.error).toBeDefined();
+});`,
+    body: [
+      "Este tipo de prueba ya no mira solo una función aislada: valida el comportamiento de una ruta y su respuesta."
+    ],
+    visualLabel: "API TEST"
+  },
+  {
+    eyebrow: "Buenas prácticas",
+    title: "¿Qué hace valioso a un buen test?",
+    bullets: [
+      "Tiene un objetivo claro.",
+      "Es legible y fácil de entender.",
+      "No depende innecesariamente de otros tests.",
+      "Es estable: no falla al azar.",
+      "Da información útil cuando falla.",
+      "Se enfoca en comportamientos importantes.",
+      "Es barato de mantener en relación con el riesgo que cubre."
+    ],
+    visualLabel: "GOOD TEST"
+  },
+  {
+    eyebrow: "Límites",
+    title: "Qué NO deberíamos esperar del testing",
+    bullets: [
+      "No garantiza ausencia total de errores.",
+      "No reemplaza diseño, revisión ni criterio técnico.",
+      "No todo conviene automatizar.",
+      "Más tests no siempre significa mejor estrategia.",
+      "Una suite de pruebas mal pensada también puede generar falsa confianza."
+    ],
+    note: "El objetivo no es acumular tests. El objetivo es reducir riesgo con criterio.",
+    visualLabel: "LIMITS"
+  },
+  {
+    eyebrow: "Aplicación al curso",
+    title: "¿Cómo se lleva esto a proyectos de alumnos?",
+    body: [
+      "Aunque un proyecto sea pequeño, ya se puede incorporar testing de forma gradual. Por ejemplo: definir resultados esperados, probar manualmente flujos clave, registrar bugs de forma ordenada y automatizar funciones o validaciones simples.",
+      "Esto prepara al alumno para pensar con mentalidad profesional incluso antes de trabajar en proyectos complejos."
+    ],
+    bullets: [
+      "Definir qué partes son más riesgosas.",
+      "Probar primero reglas y validaciones importantes.",
+      "Registrar bugs con evidencia.",
+      "Separar lógica para que sea testeable.",
+      "Incorporar scripts de prueba pequeños y claros."
+    ],
+    visualLabel: "PROJECTS"
+  },
+  {
+    eyebrow: "Cierre",
+    title: "Ideas que deberían quedar claras",
+    bullets: [
+      "Testing es obtener evidencia sobre la calidad del software.",
+      "Error, defecto, bug y falla no son exactamente lo mismo.",
+      "Hay distintos niveles de prueba: unitario, integración, sistema y aceptación.",
+      "Caja negra y caja blanca son enfoques distintos y complementarios.",
+      "Un caso de prueba y un bug report deben estar bien definidos.",
+      "La automatización es útil, pero debe aplicarse con criterio.",
+      "Un buen test ayuda a evolucionar el software con más seguridad."
+    ],
+    note: "Después de esta base teórica, podemos pasar a un ejemplo práctico.",
+    visualLabel: "READY"
+  }
+];
+
+function App() {
+  const [current, setCurrent] = useState(0);
+  const slide = slides[current];
+  const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
+
+  const next = () => setCurrent((value) => Math.min(value + 1, slides.length - 1));
+  const prev = () => setCurrent((value) => Math.max(value - 1, 0));
+
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        next();
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        prev();
+      }
+      if (event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        void toggleFullscreen();
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        setCurrent(0);
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        setCurrent(slides.length - 1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <main className="deck">
+      <header className="deck-header">
+        <div className="deck-meta">
+          <span>Ingeniería de Software · Clase teórica</span>
+          <strong>{current + 1} / {slides.length}</strong>
+        </div>
+        <nav className="controls">
+          <button onClick={prev} disabled={current === 0}>Anterior</button>
+          <button onClick={next} disabled={current === slides.length - 1}>Siguiente</button>
+          <button onClick={toggleFullscreen}>Pantalla completa</button>
+        </nav>
+      </header>
+

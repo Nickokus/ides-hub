@@ -1,0 +1,26 @@
+{
+  "name": "clase-testing-teoria",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "materialize": "node ../../../scripts/materialize-deck.mjs .",
+    "predev": "npm run materialize",
+    "dev": "vite",
+    "prebuild": "npm run materialize",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "framer-motion": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest"
+  }
+}
