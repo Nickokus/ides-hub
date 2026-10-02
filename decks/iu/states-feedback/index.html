@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Demo de Estados y Feedback en UI (Accesible)</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#111827; --muted:#9ca3af; --fg:#e5e7eb; --accent:#60a5fa;
+    --ok:#22c55e; --err:#ef4444; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;
+    background:linear-gradient(180deg,#0b1223,#0f172a 60%); color:var(--fg); display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .wrap{max-width:980px; width:100%; display:grid; gap:20px}
+  .header{display:flex; align-items:center; justify-content:space-between; gap:16px}
+  h1{margin:0; font-size:clamp(18px,3vw,24px)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px}
+  .card{
+    background:rgba(17,24,39,.9); border:1px solid rgba(255,255,255,.06);
+    border-radius:14px; padding:18px; backdrop-filter:blur(6px); box-shadow:0 10px 30px rgba(0,0,0,.25)
+  }
+  .card h2{margin:0 0 8px; font-size:18px}
+  label{display:block; font-size:14px; color:var(--muted); margin-bottom:6px}
+  input[type="text"]{
+    width:100%; padding:10px 12px; border-radius:10px; background:#0b1020; color:var(--fg);
+    border:1px solid rgba(255,255,255,.12); outline:none
+  }
+  input[type="text"]:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(96,165,250,.2)}
+  .error input{border-color:var(--err); box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+  .help{font-size:12px; color:var(--muted); margin-top:6px}
+  .help.error{color:var(--err)}
+  .row{display:flex; gap:10px; align-items:center; margin-top:12px}
+  button{
+    appearance:none; border:0; border-radius:12px; padding:10px 14px; color:#0b1020;
+    background:linear-gradient(180deg,#93c5fd,#60a5fa); font-weight:600; cursor:pointer
+  }
+  button.secondary{background:transparent; color:var(--fg); border:1px solid rgba(255,255,255,.12)}
+  button:disabled{opacity:.6; cursor:not-allowed}
+  .spinner{
+    width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.3); border-top-color:#fff;
+    animation:spin .8s linear infinite; margin-left:6px; display:inline-block; vertical-align:middle
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Toast */
+  .toast{
+    position:fixed; inset:auto 16px 16px auto; min-width:220px; max-width:90vw;
+    background:#052e16; color:#dcfce7; border:1px solid #14532d; padding:12px 14px; border-radius:12px;
+    display:none; box-shadow:0 10px 30px rgba(0,0,0,.35)
+  }
+  .toast.show{display:block; animation:toast-in .25s ease}
+  @keyframes toast-in{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+
+  /* Badges */
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 8px; border-radius:999px}
+  .badge.success{background:#052e16; color:#86efac; border:1px solid #14532d}
+  .badge.warn{background:#3b2a00; color:#fde68a; border:1px solid #a16207}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(2,6,23,.65); display:none; align-items:center; justify-content:center;
+  }
+  .modal-backdrop.show{display:flex}
+  .modal{
+    width:min(520px,92vw); background:#0b1020; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:18px;
+    transform:translateY(12px); opacity:0; transition:transform .18s ease, opacity .18s ease
+  }
+  .modal.open{transform:translateY(0); opacity:1}
+  .modal.closing{transform:translateY(12px); opacity:0}
+  .modal header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .sr-only{position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+
+  /* Table */
+  table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:12px; border:1px solid rgba(255,255,255,.08)}
+  th,td{padding:10px 12px; text-align:left; border-bottom:1px solid rgba(255,255,255,.06); font-size:13px}
+  th{background:#0b1020; color:#cbd5e1; position:sticky; top:0}
+  tr:last-child td{border-bottom:0}
+  code{background:#0b1020; padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.08)}
+  .muted{color:var(--muted)}
+  @media (prefers-reduced-motion: reduce){
+    .spinner{animation:none}
+    .modal{transition:none}
+    .toast{animation:none}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" aria-describedby="intro">
+    <div class="header">
+      <h1>Demo accesible: Evento → Estado → Feedback → Lectores de pantalla</h1>
+      <span class="badge success" id="statusBadge" aria-live="polite">Listo</span>
+    </div>
+
+    <p id="intro" class="muted">
+      Interactuá con el formulario y el modal para ver cómo cambian <em>estado</em> y <em>feedback</em>. Hay regiones
+      <code>aria-live</code> para mensajes (“SR” en la tabla).
+    </p>
+
+    <!-- Tabla resumen -->
+    <div class="card">
+      <h2>Casos que se demuestran</h2>
+      <div class="muted" style="margin-bottom:10px">Probá cada fila con el formulario y el modal de abajo.</div>
+      <div style="overflow:auto">
+        <table role="grid" aria-label="Mapa evento a feedback">
+          <thead>
+            <tr>
+              <th>Evento</th><th>Estado esperado</th><th>Feedback UI</th><th>Teclado / SR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Click “Guardar”</td>
+              <td><code>loading</code></td>
+              <td>Spinner + botón deshabilitado</td>
+              <td>SR: “Guardando…”</td>
+            </tr>
+            <tr>
+              <td>Respuesta 200</td>
+              <td><code>success</code></td>
+              <td>Toast/Badge “Guardado”</td>
+              <td>SR: aria-live “Guardado con éxito”</td>
+            </tr>
+            <tr>
+              <td>Validación falla</td>
+              <td><code>error</code></td>
+              <td>Error inline + borde rojo</td>
+              <td>SR: foco en campo + mensaje</td>
+            </tr>
+            <tr>
+              <td>Esc en modal</td>
+              <td><code>closing → idle</code></td>
+              <td>Cierre con animación</td>
+              <td>Foco vuelve al trigger</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Formulario / Guardar -->
+    <section class="grid" aria-label="Demostraciones interactivas">
+      <div class="card" aria-labelledby="formTitle">
+        <h2 id="formTitle">Formulario: Guardar perfil</h2>
+
+        <div id="formContainer">
+          <div class="field" id="nameField">
+            <label for="name">Nombre</label>
+            <input id="name" type="text" autocomplete="name" aria-describedby="nameHelp" />
+            <div id="nameHelp" class="help">Requerido. Presioná Guardar para simular validación y envío.</div>
+          </div>
+
+          <div class="row">
+            <button id="saveBtn" type="button" aria-describedby="saveHint">
+              <span>Guardar</span>
+            </button>
+            <button id="resetBtn" class="secondary" type="button">Reiniciar</button>
+            <span id="saveHint" class="help">Con campo vacío verás la validación; con texto, verás loading y éxito.</span>
+          </div>
+        </div>
+
+        <!-- Región aria-live para mensajes durante el guardado -->
+        <div id="liveRegion" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+      </div>
+
+      <!-- Modal -->
+      <div class="card" aria-labelledby="modalTitle">
+        <h2 id="modalTitle">Modal: cerrar con Esc (focus return)</h2>
+        <p class="muted">Abrí el modal y cerralo con <kbd>Esc</kbd>. El foco vuelve al botón que lo abrió.</p>
+        <button id="openModalBtn" type="button">Abrir modal</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- Modal DOM -->
+  <div id="backdrop" class="modal-backdrop" aria-hidden="true">
+    <div role="dialog" aria-modal="true" aria-labelledby="dlgTitle" class="modal" id="dialog">
+      <header>
+        <h3 id="dlgTitle" style="margin:0">Ejemplo de modal</h3>
+        <button id="closeModalBtn" class="secondary" type="button" aria-label="Cerrar modal">Cerrar</button>
+      </header>
+      <p class="muted">Este modal se puede cerrar con el botón o con <kbd>Esc</kbd>. Al cerrar, el foco vuelve al botón “Abrir modal”.</p>
+      <div class="row">
+        <button class="secondary" type="button" id="modalAction">Acción secundaria</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const nameInput   = document.getElementById('name');
+  const saveBtn     = document.getElementById('saveBtn');
+  const resetBtn    = document.getElementById('resetBtn');
+  const nameField   = document.getElementById('nameField');
+  const help        = document.getElementById('nameHelp');
+  const liveRegion  = document.getElementById('liveRegion');
+  const badge       = document.getElementById('statusBadge');
+  const toast       = document.getElementById('toast');
+
+  const openModalBtn  = document.getElementById('openModalBtn');
+  const backdrop      = document.getElementById('backdrop');
+  const dialog        = document.getElementById('dialog');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const modalAction   = document.getElementById('modalAction');
+
+  let lastOpener = null;
+  let loadingTimer = null;
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 2200);
+  }
+
+  function setBadgeSuccess(text){
+    badge.textContent = text || 'Guardado';
+    badge.className = 'badge success';
+  }
+
+  function setFieldError(msg){
+    nameField.classList.add('error');
+    nameInput.setAttribute('aria-invalid','true');
+    help.textContent = msg;
+    help.classList.add('error');
+    // SR + foco (validación falla → error + foco en campo)
+    liveRegion.textContent = msg;
+    nameInput.focus();
+  }
+
+  function clearFieldError(){
+    nameField.classList.remove('error');
+    nameInput.removeAttribute('aria-invalid');
+    help.textContent = 'Requerido. Presioná Guardar para simular validación y envío.';
+    help.classList.remove('error');
+  }
+
+  function setLoading(){
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Guardando… <span class="spinner" aria-hidden="true"></span>';
+    // SR: “Guardando…”
+    liveRegion.textContent = 'Guardando…';
+    badge.textContent = 'Guardando…';
+    badge.className = 'badge warn';
+  }
+
+  function setSuccess(){
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Guardar';
+    // Éxito visual + toast + SR
+    setBadgeSuccess('Guardado');
+    showToast('Guardado con éxito');
+    liveRegion.textContent = 'Guardado con éxito'; // aria-live assertive en toast, polite acá
+  }
+
+  function simulateSave(){
+    clearFieldError();
+    const value = (nameInput.value || '').trim();
+    if(!value){
+      // Validación falla → error inline + borde rojo + foco + SR
+      setFieldError('El nombre es obligatorio.');
+      return;
+    }
+    // Click “Guardar” → loading (spinner + botón disabled + SR)
+    setLoading();
+    // Simular red (Respuesta 200 → success)
+    loadingTimer = setTimeout(()=>{
+      setSuccess();
+    }, 1400);
+  }
+
+  saveBtn.addEventListener('click', simulateSave);
+  resetBtn.addEventListener('click', ()=>{
+    clearTimeout(loadingTimer);
+    clearFieldError();
+    nameInput.value = '';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Guardar';
+    setBadgeSuccess('Listo');
+  });
+
+  // Modal
+  function openModal(){
+    lastOpener = document.activeElement;
+    backdrop.classList.add('show');
+    backdrop.removeAttribute('aria-hidden');
+    // próxima-tick para transición
+    requestAnimationFrame(()=>{
+      dialog.classList.add('open');
+      // Foco inicial dentro del diálogo
+      closeModalBtn.focus();
+    });
+    // trap de foco simple
+    document.addEventListener('keydown', trapTab);
+    document.addEventListener('keydown', modalEsc);
+  }
+
+  function closeModal(){
+    // Esc en modal → closing → idle (animación) y foco retorna al trigger
+    dialog.classList.remove('open');
+    dialog.classList.add('closing');
+    setTimeout(()=>{
+      dialog.classList.remove('closing');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+      // Foco vuelve al botón que abrió el modal
+      (lastOpener || openModalBtn).focus();
+    }, 180);
+    document.removeEventListener('keydown', trapTab);
+    document.removeEventListener('keydown', modalEsc);
+  }
+
+  function modalEsc(e){
+    if(e.key === 'Escape'){
+      closeModal();
+    }
+  }
+
+  function trapTab(e){
+    if(e.key !== 'Tab') return;
+    const focusables = dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+    if(list.length === 0) return;
+    const first = list[0];
+    const last  = list[list.length - 1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault(); last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  openModalBtn.addEventListener('click', openModal);
+  closeModalBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e)=>{
+    // cerrar solo si clic fuera del cuadro
+    if(e.target === backdrop) closeModal();
+  });
+
+  // Accesibilidad extra: Enter para guardar, Ctrl+Enter también
+  nameInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || (e.key === 'Enter' && (e.ctrlKey||e.metaKey))){
+      simulateSave();
+    }
+  });
+})();
+</script>
+</body>
+</html>

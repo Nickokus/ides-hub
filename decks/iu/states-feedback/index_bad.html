@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Demo con problemas (para detectar)</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#fff;color:#666;margin:20px}
+  .panel{border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px}
+  input[type="text"]{padding:8px;border:1px solid #ddd;border-radius:6px;width:100%}
+  button{padding:8px 12px;border-radius:8px;border:0;background:#ddd;color:#666;cursor:pointer}
+  .toast{position:fixed;right:12px;bottom:12px;background:#eee;color:#777;padding:10px 12px;border-radius:8px;display:none}
+  .toast.show{display:block}
+  .muted{color:#aaa}
+  .spinner{display:inline-block;border:2px solid #ddd;border-top-color:#ccc;width:14px;height:14px;border-radius:50%;animation:spin 1s linear infinite;margin-left:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <h1>Demo con problemas de accesibilidad</h1>
+
+  <div class="panel">
+    <h2>Guardar perfil (sin aria-live / bajo contraste)</h2>
+    <label>Nombre (obligatorio)
+      <input id="badName" type="text">
+    </label>
+    <div class="muted">Presioná Guardar.</div>
+    <div style="margin-top:8px">
+      <button id="badSave">Guardar</button>
+      <button id="badReset">Reiniciar</button>
+    </div>
+    <div id="badMsg" class="muted"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Modal (sin retorno de foco)</h2>
+    <button id="badOpen">Abrir modal</button>
+  </div>
+
+  <div id="badToast" class="toast">Guardado con éxito</div>
+
+  <div id="badBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center">
+    <div id="badDialog" style="background:#fff;color:#555;border:1px solid #ddd;border-radius:8px;padding:14px;min-width:300px">
+      <h3>Modal</h3>
+      <p class="muted">Cerrar con Esc no devuelve foco al disparador.</p>
+      <div><button id="badClose">Cerrar</button></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const name = document.getElementById('badName');
+  const save = document.getElementById('badSave');
+  const reset= document.getElementById('badReset');
+  const msg  = document.getElementById('badMsg');
+  const toast= document.getElementById('badToast');
+
+  const open = document.getElementById('badOpen');
+  const backdrop = document.getElementById('badBackdrop');
+  const dialog = document.getElementById('badDialog');
+  const close = document.getElementById('badClose');
+
+  let timer;
+
+  save.addEventListener('click', ()=>{
+    msg.textContent='';
+    if(!name.value.trim()){
+      // error sin foco en input y sin aria-live
+      msg.textContent='El nombre es obligatorio.';
+      name.style.borderColor = '#f77';
+      return;
+    }
+    save.disabled = true;
+    save.innerHTML = 'Guardando… <span class="spinner"></span>';
+    timer = setTimeout(()=>{
+      save.disabled = false;
+      save.textContent = 'Guardar';
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'), 2000);
+    }, 1400);
+  });
+
+  reset.addEventListener('click', ()=>{
+    clearTimeout(timer);
+    name.value='';
+    name.style.borderColor = '#ddd';
+    msg.textContent='';
+    save.disabled=false;
+    save.textContent='Guardar';
+  });
+
+  function openModal(){
+    backdrop.style.display='flex';
+    dialog.focus(); // sin manejo real de foco ni retorno al disparador
+    document.addEventListener('keydown', escClose);
+  }
+  function closeModal(){
+    backdrop.style.display='none';
+    document.removeEventListener('keydown', escClose);
+    // NO retorna el foco: problema deliberado para detectar
+  }
+  function escClose(e){
+    if(e.key==='Escape') closeModal();
+  }
+  open.addEventListener('click', openModal);
+  close.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeModal(); });
+})();
+</script>
+</body>
+</html>
