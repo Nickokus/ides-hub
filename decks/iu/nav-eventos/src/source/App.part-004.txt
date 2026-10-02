@@ -1,0 +1,76 @@
+ition={{duration:.35}} className="pageContent">
+              <h3>{page==='Materia'?'Interfaz de Usuario':page}</h3>
+              <div className="skeleton large"/><div className="skeleton"/><div className="skeleton short"/>
+              {page==='Materias' && <Btn onClick={()=>go('Materia')}>Entrar a Interfaz de Usuario</Btn>}
+            </motion.section>
+          </AnimatePresence>
+        </main>
+      </div>
+    </div>
+    <p className="caption teacherCaption">Usamos esta simulación para navegar entre las secciones. Primero fíjense qué opción queda activa; después miren cómo cambia la ruta, el contenido y la transición sin que perdamos la orientación.</p>
+  </div>
+}
+
+function EventsDemo(){
+  const [hover,setHover]=useState(false); const [typed,setTyped]=useState(''); const [scroll,setScroll]=useState(0)
+  return <div className="eventsWrap"><div className="eventsDemo">
+    <div className="eventTile" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}><MouseIcon/><strong>Hover</strong><span>{hover?'Cursor encima':'Esperando'}</span></div>
+    <div className="eventTile"><KeyboardIcon/><strong>Input</strong><input value={typed} onChange={e=>setTyped(e.target.value)} placeholder="Escribí..."/><span>{typed.length} caracteres</span></div>
+    <div className="eventTile scroll" onScroll={(e)=>setScroll(Math.round((e.currentTarget.scrollTop/(e.currentTarget.scrollHeight-e.currentTarget.clientHeight))*100))}><strong>Scroll</strong><div className="scrollContent">Contenido largo<br/>↓<br/>más contenido<br/>↓<br/>final</div><span>{scroll}%</span></div>
+  </div><p className="caption teacherCaption">Probamos tres entradas distintas: pasamos el mouse, escribimos y hacemos scroll. Quiero que noten que un evento no es sinónimo de click; cualquier cambio detectable puede disparar una respuesta.</p></div>
+}
+function MouseIcon(){return <span className="emojiIcon">⌖</span>}
+function KeyboardIcon(){return <span className="emojiIcon">⌨</span>}
+
+function EventInspectorDemo(){
+  const [logs,setLogs]=useState<string[]>([])
+  const add=(x:string)=>setLogs(l=>[`${new Date().toLocaleTimeString()} · ${x}`,...l].slice(0,5))
+  return <div className="inspectorDemo">
+    <div className="inspectorActions">
+      <Btn onClick={()=>add('click: botón principal')}>Click</Btn>
+      <Btn kind="secondary" onClick={()=>add('navigate: Materias')}>Navigate to</Btn>
+      <Btn kind="ghost" onClick={()=>add('open: modal contextual')}>Open overlay</Btn>
+      <input onChange={(e)=>add(`input: ${e.target.value || 'vacío'}`)} placeholder="Input event" />
+    </div>
+    <div className="logPanel">{logs.length===0?<p>Interactuá con los controles para ver eventos.</p>:logs.map(x=><motion.div key={x} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}}>{x}</motion.div>)}</div>
+    <p className="caption teacherCaption inspectorCaption">Acá disparo distintas acciones y miramos el registro. Nos sirve para separar qué hizo el usuario del efecto que la interfaz decidió ejecutar.</p>
+  </div>
+}
+
+function StatesDemo(){
+  const [loading,setLoading]=useState(false)
+  const run=()=>{setLoading(true); setTimeout(()=>setLoading(false),1400)}
+  return <div className="statesDemo">
+    <div className="stateCard"><span>Default</span><button>Materias</button></div>
+    <div className="stateCard hover"><span>Hover</span><button>Materias</button></div>
+    <div className="stateCard active"><span>Active</span><button>Materias</button></div>
+    <div className="stateCard disabled"><span>Disabled</span><button>Materias</button></div>
+    <div className="stateCard loading"><span>Loading real</span><button onClick={run}>{loading?'Cargando…':'Actualizar'}</button></div>
+    <p className="caption teacherCaption statesCaption">Acá comparamos estados del mismo elemento. Fíjense que la navegación activa no debería depender de que recordemos dónde hicimos click: el componente nos lo comunica visualmente.</p>
+  </div>
+}
+
+function FeedbackDemo(){
+  const [status,setStatus]=useState<'idle'|'loading'|'success'|'error'>('idle')
+  const run=(ok:boolean)=>{setStatus('loading'); setTimeout(()=>setStatus(ok?'success':'error'),900)}
+  return <div className="feedbackDemo">
+    <div className={`feedbackScreen ${status}`}>
+      <AnimatePresence mode="wait"><motion.div key={status} initial={{opacity:0,y:15}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-15}}>
+        {status==='idle' && <><h3>Formulario listo</h3><p>Esperando una acción del usuario.</p></>}
+        {status==='loading' && <><div className="spinner"/><h3>Guardando…</h3><p>El sistema confirma que recibió el evento.</p></>}
+        {status==='success' && <><h3>✓ Guardado correctamente</h3><p>El usuario sabe que la acción terminó bien.</p></>}
+        {status==='error' && <><h3>⚠ No pudimos guardar</h3><p>El feedback explica el problema y permite intentar de nuevo.</p></>}
+      </motion.div></AnimatePresence>
+    </div>
+    <div className="segmented"><Btn onClick={()=>run(true)}>Simular éxito</Btn><Btn kind="danger" onClick={()=>run(false)}>Simular error</Btn><Btn kind="secondary" onClick={()=>setStatus('idle')}>Volver al inicio</Btn></div>
+    <p className="caption teacherCaption">Probamos primero éxito y después error. En ambos casos quiero que vean que el feedback elimina la duda: el usuario sabe si el sistema sigue trabajando, terminó bien o necesita otra acción.</p>
+  </div>
+}
+
+function KeyboardDemo(){
+  const items=['Inicio','Materias','Calendario','Perfil']
+  return <div className="keyboardDemo">
+    <div className="focusMenu">{items.map((x,i)=><button key={x} tabIndex={0}>{x}<small>tab {i+1}</small></button>)}</div>
+    <div className="keyHints"><kbd>Tab</kbd><span>recorrer controles</span><kbd>Enter</kbd><span>activar</span><kbd>Esc</kbd><span>cerrar</span></div>
+    <p className="caption teacherCaption">Ahora usamos Tab entre todos. Fíjense cómo el foco visible nos muestra dónde estamos antes de presionar Enter; así comprobamos que la navegación no depende solamente del mouse.</p>
+  </div>

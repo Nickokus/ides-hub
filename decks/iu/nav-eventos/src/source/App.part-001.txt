@@ -1,0 +1,118 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+
+type SlideType =
+  | 'cover'
+  | 'concept'
+  | 'eventLoop'
+  | 'navigationTypes'
+  | 'routes'
+  | 'mockNavigation'
+  | 'events'
+  | 'eventInspector'
+  | 'states'
+  | 'feedback'
+  | 'keyboard'
+  | 'history'
+  | 'modal'
+  | 'mobile'
+  | 'badGood'
+  | 'activity'
+  | 'summary'
+
+type Slide = {
+  kicker: string
+  title: string
+  subtitle: string
+  definition?: string
+  theory: string
+  type: SlideType
+}
+
+const slides: Slide[] = [
+  {
+    kicker: 'Interfaz de Usuario · Clase teórica interactiva',
+    title: 'Navegación y eventos',
+    subtitle: 'Cómo una interfaz permite moverse, actuar y recibir respuesta del sistema.',
+    theory: 'Una interfaz no es solamente una pantalla estática. Es un sistema de lugares, acciones, eventos, estados y respuestas. Diseñar navegación y eventos implica decidir cómo el usuario avanza, vuelve, cambia de contexto y comprende qué ocurrió después de interactuar.',
+    type: 'cover',
+  },
+  {
+    kicker: '01 · Concepto base',
+    title: 'Navegar es cambiar de contexto sin perder orientación',
+    subtitle: 'La navegación responde tres preguntas: dónde estoy, dónde puedo ir y cómo puedo volver.',
+    definition: 'Navegación: conjunto de mecanismos que permiten al usuario desplazarse entre pantallas, vistas, secciones o niveles de información dentro de una interfaz.',
+    theory: 'Una buena navegación no solo mueve al usuario: también le da orientación. Si el usuario no entiende dónde está, qué puede hacer o cómo regresar, la navegación falla aunque técnicamente funcione.',
+    type: 'concept',
+  },
+  {
+    kicker: '02 · Secuencia fundamental',
+    title: 'Evento → respuesta → estado',
+    subtitle: 'Toda interacción significativa comienza con algo que ocurre y termina con una respuesta visible o funcional.',
+    definition: 'Evento: suceso detectado por la interfaz, generalmente provocado por el usuario o por el sistema, que puede disparar una respuesta.',
+    theory: 'Click, hover, tap, scroll, tecla, input, carga completada o error son eventos. La interfaz debe decidir qué respuesta corresponde: navegar, abrir un modal, validar, mostrar feedback o cambiar un estado.',
+    type: 'eventLoop',
+  },
+  {
+    kicker: '03 · Tipos de navegación',
+    title: 'No toda navegación cumple la misma función',
+    subtitle: 'Global, local, jerárquica, secuencial y contextual resuelven problemas distintos.',
+    theory: 'Un menú principal no cumple la misma función que un breadcrumb, un wizard o unas pestañas. Cada patrón organiza el movimiento del usuario con una lógica diferente.',
+    type: 'navigationTypes',
+  },
+  {
+    kicker: '04 · Rutas y estructura',
+    title: 'La navegación necesita una arquitectura visible',
+    subtitle: 'Antes de animar o decorar, hay que decidir qué pantallas existen y cómo se conectan.',
+    definition: 'Ruta: camino posible que conecta una pantalla o vista con otra dentro de un sistema.',
+    theory: 'Un sistema puede tener muchas pantallas, pero el usuario solo necesita ver los caminos relevantes para su tarea actual. Las rutas deberían reflejar estructura, prioridad y contexto.',
+    type: 'routes',
+  },
+  {
+    kicker: '05 · Laboratorio principal',
+    title: 'Simulación: una pantalla que navega',
+    subtitle: 'La demo muestra cómo una misma interfaz cambia de vista sin perder navegación ni orientación.',
+    theory: 'Usamos esta diapositiva para mostrar navegación global, vista activa, contenido dinámico y retorno visual. Mantengo el contenido minimalista para que podamos concentrarnos en cómo cambia el contexto y en las señales que nos permiten seguir orientados.',
+    type: 'mockNavigation',
+  },
+  {
+    kicker: '06 · Eventos de entrada',
+    title: 'El usuario no interactúa de una sola manera',
+    subtitle: 'Click, hover, teclado, escritura, scroll y touch pueden iniciar respuestas diferentes.',
+    theory: 'Diseñar eventos no es pensar solo en clicks. Una interfaz madura considera múltiples formas de interacción y evita depender de un único gesto o dispositivo.',
+    type: 'events',
+  },
+  {
+    kicker: '07 · Inspector de eventos',
+    title: 'Cada acción deja una pista',
+    subtitle: 'Una buena interfaz permite inferir qué ocurrió, qué cambió y qué puede hacerse después.',
+    theory: 'Esta demo permite activar eventos diferentes y ver cómo se registran. Sirve para separar evento, respuesta y cambio de estado.',
+    type: 'eventInspector',
+  },
+  {
+    kicker: '08 · Estados de navegación',
+    title: 'Un componente cambia según su estado',
+    subtitle: 'Default, hover, active, disabled y loading comunican disponibilidad y contexto.',
+    definition: 'Estado: condición actual de un elemento o pantalla dentro de la interacción.',
+    theory: 'Un elemento de navegación debería indicar si está disponible, si el cursor está encima, si corresponde a la pantalla activa o si una acción está en proceso.',
+    type: 'states',
+  },
+  {
+    kicker: '09 · Feedback',
+    title: 'Si el sistema no responde, el usuario duda',
+    subtitle: 'El feedback confirma que el evento fue recibido y que algo está ocurriendo.',
+    definition: 'Feedback: respuesta perceptible del sistema ante una acción del usuario o un cambio interno.',
+    theory: 'El feedback puede ser visual, textual, sonoro o háptico. En UI web suele aparecer como loading, toast, cambio de color, estado activo, error o confirmación.',
+    type: 'feedback',
+  },
+  {
+    kicker: '10 · Teclado y accesibilidad',
+    title: 'Navegar no debería depender solo del mouse',
+    subtitle: 'Tab, Enter, Escape y foco visible también son parte de la navegación.',
+    theory: 'La navegación por teclado permite recorrer controles, activar acciones y cerrar elementos. Además mejora accesibilidad y evidencia si la estructura interactiva está bien ordenada.',
+    type: 'keyboard',
+  },
+  {
+    kicker: '11 · Historial y retorno',
+    title: 'Volver también es parte del diseño',
+    subtitle: 'Un

@@ -1,0 +1,12 @@
+fy-content:center;gap:10px;flex-wrap:wrap}
+.contextFlow{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.contextFlow>div{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.typeGraphic em{background:rgba(236,72,153,.13);color:#fbcfe8;border:1px solid rgba(236,72,153,.18)}
+.typeRail button.on,.loopNode.hot,.stateCard.active button,.historyStack div.top{color:#fff}
+.activityDemo span{color:#fff}
+.feedbackScreen.success{background:rgba(56,189,248,.09);border-color:rgba(56,189,248,.22)}
+.feedbackScreen.error{background:rgba(236,72,153,.09);border-color:rgba(236,72,153,.22)}
+.btn.danger{background:#db2777;color:#fff;box-shadow:0 12px 28px rgba(219,39,119,.16)}
+.cursorGhost{color:#bfdbfe;text-shadow:0 0 20px rgba(56,189,248,.45)}
+.modalCaption{position:relative;z-index:1}
+@media(max-width:1000px){.loopRow{flex-wrap:wrap}.loopStep{min-width:45%}.flowArrow{display:none}.routesDemo{height:390px}}

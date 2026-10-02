@@ -1,0 +1,93 @@
+a buena interfaz permite avanzar sin miedo porque ofrece formas claras de regresar o deshacer.',
+    definition: 'Historial de navegación: registro de vistas visitadas que permite comprender el recorrido y facilitar el retorno.',
+    theory: 'El usuario necesita libertad para explorar. Si cada click parece irreversible, aumenta la ansiedad y baja la confianza en la interfaz.',
+    type: 'history',
+  },
+  {
+    kicker: '12 · Navegación contextual',
+    title: 'Algunas acciones aparecen dentro del contexto actual',
+    subtitle: 'Modales, menús contextuales y paneles laterales no siempre cambian de pantalla, pero sí cambian el estado de interacción.',
+    theory: 'Abrir un modal no es lo mismo que navegar a otra página. El usuario mantiene el contexto de fondo, pero entra en una tarea secundaria o enfocada.',
+    type: 'modal',
+  },
+  {
+    kicker: '13 · Mobile y navegación condensada',
+    title: 'Cuando el espacio cambia, la navegación cambia',
+    subtitle: 'Una sidebar de escritorio puede transformarse en tabs, menú inferior o menú hamburguesa en móvil.',
+    theory: 'La navegación debe adaptarse al espacio y al método de interacción. En mobile se priorizan accesos frecuentes, zonas táctiles y lectura secuencial.',
+    type: 'mobile',
+  },
+  {
+    kicker: '14 · Errores comunes',
+    title: 'Una navegación puede ser linda y aun así fallar',
+    subtitle: 'La estética no compensa falta de orientación, estados invisibles o respuestas ambiguas.',
+    theory: 'Los problemas más frecuentes son no mostrar la sección activa, ocultar demasiado la navegación, depender solo del hover, no dar feedback o impedir volver claramente.',
+    type: 'badGood',
+  },
+  {
+    kicker: '15 · Actividad de clase',
+    title: 'Diseñar un flujo navegable en Figma',
+    subtitle: 'Objetivo: convertir pantallas estáticas en un recorrido claro con eventos y feedback.',
+    theory: 'Los alumnos deben definir pantallas, rutas, eventos, estados y feedback mínimo. Luego prueban si otro compañero puede completar una tarea sin explicación externa.',
+    type: 'activity',
+  },
+  {
+    kicker: 'Cierre',
+    title: 'Una interfaz se entiende cuando sus movimientos se entienden',
+    subtitle: 'Navegación y eventos convierten pantallas en experiencia.',
+    theory: 'Diseñar navegación es diseñar orientación. Diseñar eventos es diseñar respuestas. Juntos permiten que el usuario actúe, comprenda cambios, avance, vuelva y confíe en el sistema.',
+    type: 'summary',
+  },
+]
+
+const ease = [0.16, 1, 0.3, 1] as const
+
+type BtnKind = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success'
+function Btn({ children, onClick, kind = 'primary', active, disabled, className = '' }: { children: React.ReactNode; onClick?: () => void; kind?: BtnKind; active?: boolean; disabled?: boolean; className?: string }) {
+  return <motion.button disabled={disabled} whileHover={!disabled ? { y: -2, scale: 1.015 } : {}} whileTap={!disabled ? { scale: .965 } : {}} onClick={onClick} className={`btn ${kind} ${active ? 'active' : ''} ${className}`}>{children}</motion.button>
+}
+
+function Badge({ children }: { children: React.ReactNode }) { return <span className="badge">{children}</span> }
+
+function CoverDemo() {
+  return <div className="coverDemo">
+    <svg className="coverFlow" viewBox="0 0 760 470" aria-hidden="true">
+      <defs>
+        <linearGradient id="coverRoute" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#8b5cf6"/><stop offset=".52" stopColor="#ec4899"/><stop offset="1" stopColor="#38bdf8"/></linearGradient>
+        <marker id="coverArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5 L0,10 z" fill="#c4b5fd"/></marker>
+      </defs>
+      {[
+        'M170 105 C300 45 470 45 590 120',
+        'M625 145 C690 235 650 325 570 365',
+        'M535 390 C390 445 230 420 155 340',
+        'M125 310 C65 225 85 145 140 120',
+      ].map((d,i)=><motion.path key={d} d={d} fill="none" stroke="url(#coverRoute)" strokeWidth="4" strokeLinecap="round" markerEnd="url(#coverArrow)" initial={{pathLength:0,opacity:0}} animate={{pathLength:1,opacity:.72}} transition={{delay:.15+i*.18,duration:.8,ease}}/>)}
+    </svg>
+    {['Inicio','Evento','Estado','Feedback'].map((x,i)=><motion.div key={x} initial={{opacity:0,scale:.6}} animate={{opacity:1,scale:1}} transition={{delay:i*.14,type:'spring'}} className={`orbitNode n${i}`}>{x}</motion.div>)}
+    <motion.div className="coreOrb" animate={{ rotate:[0,3,-3,0], y:[0,-7,0] }} transition={{duration:6,repeat:Infinity}}>
+      <span>↗</span><strong>Navegación<br/>+ Eventos</strong>
+    </motion.div>
+    <motion.div className="cursorGhost" animate={{x:[0,100,205,100,0],y:[0,-54,10,74,0]}} transition={{duration:8,repeat:Infinity,ease:'easeInOut'}}>⌁</motion.div>
+  </div>
+}
+
+function ConceptDemo(){
+  return <div className="conceptGrid">
+    {[
+      ['¿Dónde estoy?','Estado activo, título, breadcrumb'],
+      ['¿Dónde puedo ir?','Menú, tabs, links, CTA'],
+      ['¿Cómo vuelvo?','Atrás, breadcrumb, cierre, deshacer'],
+    ].map(([a,b],i)=><motion.div key={a} initial={{opacity:0,y:22}} animate={{opacity:1,y:0}} transition={{delay:i*.09}} className="conceptCard"><span>{i+1}</span><strong>{a}</strong><p>{b}</p></motion.div>)}
+  </div>
+}
+
+function EventLoopDemo(){
+  const [step,setStep]=useState(0)
+  const labels=['Evento','Respuesta','Cambio de estado','Feedback']
+  return <div className="eventLoopDemo">
+    <div className="loopRow">
+      {labels.map((l,i)=><div key={l} className="loopStep"><div className={`loopNode ${step===i?'hot':''}`} onClick={()=>setStep(i)}><span>{i+1}</span><strong>{l}</strong></div>{i<labels.length-1&&<motion.span className="flowArrow" animate={{x:[0,5,0]}} transition={{repeat:Infinity,duration:1.5,delay:i*.12}}>→</motion.span>}</div>)}
+    </div>
+    <div className="simPanel">
+      <Btn onClick={()=>setStep((step+1)%4)}>Avanzar un paso →</Btn>
+      <motion.div key={step} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className="eventMessag

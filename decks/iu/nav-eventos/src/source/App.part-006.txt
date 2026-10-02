@@ -1,0 +1,15 @@
+=()=>go(index+1); const prev=()=>go(index-1)
+  const toggleFull=async()=>{if(!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen()}
+  useEffect(()=>{const f=()=>setFull(Boolean(document.fullscreenElement));document.addEventListener('fullscreenchange',f);return()=>document.removeEventListener('fullscreenchange',f)},[])
+  useEffect(()=>{const h=(e:KeyboardEvent)=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next()} if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()} if(e.key==='Home')go(0); if(e.key==='End')go(slides.length-1); if(e.key.toLowerCase()==='f')toggleFull()};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h)},[index])
+  return <main className="presentation">
+    <div className="ambient a"/><div className="ambient b"/><div className="scanline"/>
+    <header className="topbar"><div><strong>Interfaz de Usuario</strong><span>Navegación y eventos · presentación interactiva</span></div><div className="topActions"><Badge>{index+1} / {slides.length}</Badge><Btn kind="ghost" onClick={toggleFull}>{full?'Salir':'Pantalla completa'} · F</Btn></div></header>
+    <div className="progress"><motion.div animate={{width:`${progress}%`}} transition={{duration:.45,ease}} /></div>
+    <section className="stage"><AnimatePresence mode="wait" custom={direction}><motion.article key={index} custom={direction} variants={{enter:(d:number)=>({opacity:0,x:d>0?120:-120,rotateY:d>0?-8:8,filter:'blur(10px)'}),center:{opacity:1,x:0,rotateY:0,filter:'blur(0px)'},exit:(d:number)=>({opacity:0,x:d>0?-120:120,rotateY:d>0?8:-8,filter:'blur(10px)'})}} initial="enter" animate="center" exit="exit" transition={{duration:.58,ease}} className="slide">
+      <div className="copyPane"><div className="kicker">{slide.kicker}</div><h1>{slide.title}</h1><p className="subtitle">{slide.subtitle}</p>{slide.definition&&<div className="definition"><b>Definición</b><p>{slide.definition}</p></div>}<div className="theory"><b>Concepto clave</b><p>{slide.theory}</p></div></div>
+      <div className="visualPane"><Visual type={slide.type}/></div>
+    </motion.article></AnimatePresence></section>
+    <footer className="controls"><Btn kind="ghost" onClick={prev} disabled={index===0}>← Anterior</Btn><div className="dots">{slides.map((_,i)=><button key={i} onClick={()=>go(i)} className={i===index?'active':''}/>)}</div><Btn kind="ghost" onClick={next} disabled={index===slides.length-1}>Siguiente →</Btn></footer>
+  </main>
+}

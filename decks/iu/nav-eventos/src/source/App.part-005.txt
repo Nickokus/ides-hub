@@ -1,0 +1,59 @@
+
+}
+
+function HistoryDemo(){
+  const [history,setHistory]=useState(['Inicio']); const current=history[history.length-1]
+  const go=(p:string)=>setHistory(h=>[...h,p]); const back=()=>setHistory(h=>h.length>1?h.slice(0,-1):h)
+  return <div className="historyDemo">
+    <div className="segmented"><Btn onClick={()=>go('Materias')}>Materias</Btn><Btn onClick={()=>go('Actividad')}>Actividad</Btn><Btn kind="secondary" onClick={back} disabled={history.length===1}>← Volver</Btn></div>
+    <div className="historyStack">{history.map((x,i)=><div className="historyStep" key={i+x}><motion.div initial={{opacity:0,y:15}} animate={{opacity:1,y:0}} className={i===history.length-1?'top':''}>{x}</motion.div>{i<history.length-1&&<span className="historyArrow">→</span>}</div>)}</div>
+    <div className="currentView">Vista actual: <b>{current}</b></div>
+    <p className="caption teacherCaption">Vamos entrando a distintas vistas y miramos cómo se construye el recorrido. Después usamos Volver para mostrar que regresar también es una decisión de navegación, no un detalle secundario.</p>
+  </div>
+}
+
+function ModalDemo(){
+  const [open,setOpen]=useState(false)
+  useEffect(()=>{const h=(e:KeyboardEvent)=>{if(e.key==='Escape')setOpen(false)};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h)},[])
+  return <div className="modalDemo">
+    <div className="modalPage"><h3>Actividad pendiente</h3><div className="skeleton large"/><Btn onClick={()=>setOpen(true)}>Entregar trabajo</Btn></div>
+    <AnimatePresence>{open&&<motion.div className="overlay" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><motion.div className="modal" initial={{scale:.85,y:30}} animate={{scale:1,y:0}} exit={{scale:.85,y:30}}><h3>Entregar archivo</h3><p>El contexto de fondo se conserva, pero la atención se enfoca en una tarea secundaria.</p><Btn onClick={()=>setOpen(false)}>Cerrar</Btn><small>También cierra con Esc</small></motion.div></motion.div>}</AnimatePresence>
+    <p className="caption teacherCaption modalCaption">Usamos el modal para ver una navegación contextual: no abandonamos la pantalla de Actividad, pero cambiamos temporalmente el foco. Después cerramos con el botón o con Escape.</p>
+  </div>
+}
+
+function MobileDemo(){
+  const [open,setOpen]=useState(false)
+  return <div className="mobileDemo">
+    <div className="phone"><div className="phoneTop"><button onClick={()=>setOpen(!open)}>☰</button><b>Aula</b></div><AnimatePresence>{open&&<motion.div initial={{height:0,opacity:0}} animate={{height:'auto',opacity:1}} exit={{height:0,opacity:0}} className="mobileMenu">{['Inicio','Materias','Calendario','Perfil'].map(x=><button key={x}>{x}</button>)}</motion.div>}</AnimatePresence><div className="phoneBody"><div className="skeleton large"/><div className="skeleton"/><div className="bottomNav"><button>🏠</button><button>📚</button><button>👤</button></div></div></div>
+    <p className="caption teacherCaption">Acá comparamos dos soluciones de mobile. Abrimos el menú hamburguesa y después miramos la navegación inferior: las dos condensan opciones, pero no tienen la misma visibilidad ni prioridad.</p>
+  </div>
+}
+
+function BadGoodDemo(){
+  const [good,setGood]=useState(false)
+  return <div className="badGoodDemo">
+    <div className="segmented"><Btn kind="danger" active={!good} onClick={()=>setGood(false)}>Problemas</Btn><Btn kind="success" active={good} onClick={()=>setGood(true)}>Corrección</Btn></div>
+    <div className={`compareScreen ${good?'good':'bad'}`}>
+      <nav>{['Inicio','Materias','Calendario'].map((x,i)=><button key={x} className={good&&i===1?'active':''}>{good?x:'●'}</button>)}</nav>
+      <main><h3>{good?'Materias':'Pantalla'}</h3><p>{good?'Estado activo visible, nombres claros y botón de retorno.':'Íconos ambiguos, sin estado activo y sin orientación.'}</p>{good&&<Btn kind="secondary">← Volver</Btn>}</main>
+    </div>
+    <p className="caption teacherCaption">Primero miramos la versión problemática y tratamos de orientarnos sin ayuda. Después activamos la corrección y vemos qué señales reducen la ambigüedad.</p>
+  </div>
+}
+
+function ActivityDemo(){
+  const steps=['Definir pantallas','Dibujar rutas','Asignar eventos','Diseñar estados','Agregar feedback','Probar con un compañero']
+  return <div className="activityWrap"><div className="activityDemo">{steps.map((s,i)=><motion.div key={s} initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:i*.06}}><span>{i+1}</span><strong>{s}</strong></motion.div>)}</div><p className="caption teacherCaption">Usamos estos seis pasos como guía del práctico: primero definimos la estructura y recién después conectamos eventos, estados y feedback. La prueba final nos dice si el recorrido realmente se entiende.</p></div>
+}
+
+function SummaryDemo(){return <div className="summaryDemo"><motion.div animate={{scale:[1,1.04,1]}} transition={{repeat:Infinity,duration:2.5}} className="summaryIcon">↗</motion.div><h3>Orientación + respuesta = confianza</h3><p>El usuario confía cuando entiende dónde está, qué puede hacer, qué ocurrió y cómo volver.</p></div>}
+
+function Visual({type}:{type:SlideType}){
+  const map:Record<SlideType,JSX.Element>={cover:<CoverDemo/>,concept:<ConceptDemo/>,eventLoop:<EventLoopDemo/>,navigationTypes:<NavigationTypesDemo/>,routes:<RoutesDemo/>,mockNavigation:<MockNavigationDemo/>,events:<EventsDemo/>,eventInspector:<EventInspectorDemo/>,states:<StatesDemo/>,feedback:<FeedbackDemo/>,keyboard:<KeyboardDemo/>,history:<HistoryDemo/>,modal:<ModalDemo/>,mobile:<MobileDemo/>,badGood:<BadGoodDemo/>,activity:<ActivityDemo/>,summary:<SummaryDemo/>}
+  return map[type]
+}
+
+export default function App(){
+  const [index,setIndex]=useState(0); const [direction,setDirection]=useState(1); const [full,setFull]=useState(false); const slide=slides[index]; const progress=useMemo(()=>((index+1)/slides.length)*100,[index])
+  const go=(n:number)=>{const safe=Math.max(0,Math.min(slides.length-1,n));setDirection(safe>=index?1:-1);setIndex(safe)}; const next
