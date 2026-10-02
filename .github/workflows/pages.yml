@@ -41,7 +41,7 @@ jobs:
             echo "Building $src -> $dest"
             pushd "$src"
             npm install --no-audit --no-fund
-            npm run build
+            npm run build -- --base=./
             popd
             mkdir -p "_site/$dest"
             cp -R "$src/dist/." "_site/$dest/"
@@ -51,7 +51,15 @@ jobs:
           build_deck decks/is/ci-cd-deploy decks/is/ci-cd-deploy
           build_deck decks/is/nickochat decks/is/nickochat
           build_deck decks/is/testing decks/is/testing
+
+          build_deck decks/iu/design-systems decks/iu/design-systems
+          build_deck decks/iu/psicologia-ux decks/iu/psicologia-ux
+          node scripts/materialize-deck.mjs decks/iu/nav-eventos
+          build_deck decks/iu/nav-eventos decks/iu/nav-eventos
           build_deck decks/iu/user-flow decks/iu/user-flow
+
+          mkdir -p _site/decks/iu/states-feedback
+          cp decks/iu/states-feedback/index.html decks/iu/states-feedback/index_bad.html _site/decks/iu/states-feedback/
 
       - uses: actions/configure-pages@v5
         with:
